@@ -1,0 +1,32 @@
+spring:
+  profiles:
+    active: cloud
+---
+spring:
+  profiles: cloud
+  jpa:
+    database: MYSQL
+    hibernate:
+      ddl-auto: create
+  application:
+    name: service-broker
+management:
+  contextPath: /management
+security:
+  basic:
+    enabled: true
+aws:
+  accessKeyId: replace
+  secretAccessKey: replace
+---
+spring:
+  profiles: test
+  jpa:
+    database: H2
+    hibernate:
+      ddl-auto: create
+  datasource:
+    url: "jdbc:h2:mem:db"
+aws:
+  accessKeyId: replace
+  secretAccessKey: replace
