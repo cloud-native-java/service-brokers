@@ -4,20 +4,24 @@ spring:
 ---
 spring:
   profiles: cloud
+  datasource:
+    url: ${cloud.services.mysql.connection.uri}
+    driver-class-name: com.mysql.jdbc.Driver
   jpa:
     database: MYSQL
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
+    generate-ddl: true
   application:
-    name: service-broker
+    name: s3-broker
 management:
   contextPath: /management
 security:
   basic:
     enabled: true
 aws:
-  accessKeyId: replace
-  secretAccessKey: replace
+  access-key-id: replace
+  secret-access-key: replace
 ---
 spring:
   profiles: test
@@ -28,5 +32,5 @@ spring:
   datasource:
     url: "jdbc:h2:mem:db"
 aws:
-  accessKeyId: replace
-  secretAccessKey: replace
+  access-key-id: replace
+  secret-access-key: replace

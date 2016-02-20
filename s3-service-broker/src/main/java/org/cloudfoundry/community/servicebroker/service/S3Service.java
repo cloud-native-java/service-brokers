@@ -42,8 +42,8 @@ public class S3Service {
     private AmazonS3 amazonS3;
 
     @Autowired
-    public S3Service(@Value("${aws.accessKeyId}") String awsAccessKeyId,
-                     @Value("${aws.secretAccessKey}") String awsSecretAccessKey) {
+    public S3Service(@Value("${aws.access-key-id}") String awsAccessKeyId,
+                     @Value("${aws.secret-access-key}") String awsSecretAccessKey) {
 
         // Create identity management client
         this.identityManagement =

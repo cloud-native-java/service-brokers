@@ -1,12 +1,11 @@
 ---
 applications:
-- name: scheduler-broker
-  path: ./target/spring-boot-cf-service-broker-1.0-SNAPSHOT.jar
+- name: s3-broker
+  path: ./target/s3-service-broker-1.0.0-SNAPSHOT.jar
   memory: 600M
   instances: 1
-  buildpack: java-buildpack-offline
   timeout: 180
-  host: scheduler-broker
-  domain: bosh-lite.com
+  host: s3-broker
+  domain: local.micropcf.io
   services:
-    - scheduler-db
+    - s3-broker-db
