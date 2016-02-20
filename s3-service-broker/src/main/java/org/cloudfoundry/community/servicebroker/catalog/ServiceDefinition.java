@@ -1,11 +1,14 @@
 package org.cloudfoundry.community.servicebroker.catalog;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.cloudfoundry.community.servicebroker.config.ServiceBrokerAutoConfiguration;
+import org.cloudfoundry.community.servicebroker.model.ServiceMetaData;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * A service offered by this broker.
@@ -39,7 +42,7 @@ public class ServiceDefinition implements Serializable {
 
     @Transient
     @JsonProperty("metadata")
-    private Map<String,Object> metadata = ServiceBrokerAutoConfiguration.getServiceDefinitionMetaData();
+    private Map<String,Object> metadata = ServiceMetaData.META_DATA;
 
     public ServiceDefinition() {
         this.id = UUID.randomUUID().toString();

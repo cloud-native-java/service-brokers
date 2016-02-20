@@ -44,7 +44,6 @@ public class S3Service {
     @Autowired
     public S3Service(@Value("${aws.access-key-id}") String awsAccessKeyId,
                      @Value("${aws.secret-access-key}") String awsSecretAccessKey) {
-
         // Create identity management client
         this.identityManagement =
                 new AmazonIdentityManagementClient(
@@ -225,14 +224,10 @@ public class S3Service {
         // Create a new user for the service instance
         user.setCreateUserResult(identityManagement.createUser(new CreateUserRequest(applicationId)));
 
-        log.info("createUserResult {}", user.getCreateUserResult());
-
         // Create access key for new user
         CreateAccessKeyResult createAccessKeyResult =
                 identityManagement.createAccessKey(new CreateAccessKeyRequest(applicationId)
                         .withUserName(user.getCreateUserResult().getUser().getUserName()));
-
-        log.info("createAccessKeyResult {}", createAccessKeyResult);
 
         // Get access key and secret for new user
         user.setAccessKeyId(createAccessKeyResult.getAccessKey().getAccessKeyId());

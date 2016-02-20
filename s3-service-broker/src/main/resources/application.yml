@@ -3,6 +3,8 @@ spring:
     active: cloud
 ---
 spring:
+  application:
+    name: s3-broker
   profiles: cloud
   datasource:
     url: ${cloud.services.mysql.connection.uri}
@@ -12,16 +14,30 @@ spring:
     hibernate:
       ddl-auto: update
     generate-ddl: true
-  application:
-    name: s3-broker
 management:
   contextPath: /management
 security:
   basic:
     enabled: true
 aws:
-  access-key-id: replace
-  secret-access-key: replace
+  access-key-id: ${AWS_ACCESS_KEY_ID:replace}
+  secret-access-key: ${AWS_SECRET_ACCESS_KEY:replace}
+broker:
+  providerDisplayName: "Amazon S3"
+  documentationUrl: "http://aws.amazon.com/s3"
+  supportUrl: "http://aws.amazon.com/s3"
+  displayName: "Amazon S3"
+  longDescription: "A backing service with unlimited Amazon S3 storage"
+  basicPlan:
+    id: "ac8fdb55-3223-41e9-a5f5-eca6f8fd40c0"
+    name: "s3-basic"
+    description: "Amazon S3 bucket with unlimited storage"
+    free: true
+  definition:
+    id: "00a3b868-9cf9-4ad3-a6b0-e867740cbef0"
+    name: "amazon-s3"
+    description: "Amazon S3 simple storage as a backing service"
+    bindable: true
 ---
 spring:
   profiles: test
@@ -32,5 +48,5 @@ spring:
   datasource:
     url: "jdbc:h2:mem:db"
 aws:
-  access-key-id: replace
-  secret-access-key: replace
+  access-key-id: ${AWS_ACCESS_KEY_ID:replace}
+  secret-access-key: ${AWS_SECRET_ACCESS_KEY:replace}

@@ -34,15 +34,5 @@ public class ServiceBrokerAutoConfiguration {
         return new BeanCatalogService(catalog, serviceDefinitionRepository);
     }
 
-    public static Map<String, Object> getServiceDefinitionMetaData() {
-        Map<String, Object> sdMetadata = new HashMap<>();
 
-        sdMetadata.put("providerDisplayName", "Amazon S3");
-        sdMetadata.put("documentationUrl", "http://aws.amazon.com/s3");
-        sdMetadata.put("supportUrl", "http://aws.amazon.com/s3");
-        sdMetadata.put("displayName", "Amazon S3");
-        sdMetadata.put("longDescription", "Attach to a backing service with unlimited storage using Amazon S3");
-
-        return sdMetadata;
-    }
 }
