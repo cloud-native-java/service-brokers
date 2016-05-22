@@ -1,11 +1,11 @@
 ---
 applications:
 - name: s3-broker
-  path: ./target/s3-service-broker-1.0.0-SNAPSHOT.jar
+  path: ./target/s3-service-broker.jar
   memory: 600M
   instances: 1
   timeout: 180
   host: s3-broker
-  domain: local.micropcf.io
+  domain: local.pcfdev.io
   services:
     - s3-broker-db

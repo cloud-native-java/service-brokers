@@ -13,6 +13,7 @@ public class BrokerProperties {
     private String supportUrl;
     private String displayName;
     private String longDescription;
+    private String imageUrl;
 
     @NestedConfigurationProperty
     private BasicPlan basicPlan;
@@ -158,6 +159,14 @@ public class BrokerProperties {
         this.longDescription = longDescription;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     public BasicPlan getBasicPlan() {
         return basicPlan;
     }
@@ -182,6 +191,7 @@ public class BrokerProperties {
                 ", supportUrl='" + supportUrl + '\'' +
                 ", displayName='" + displayName + '\'' +
                 ", longDescription='" + longDescription + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
                 ", basicPlan=" + basicPlan +
                 ", definition=" + definition +
                 '}';

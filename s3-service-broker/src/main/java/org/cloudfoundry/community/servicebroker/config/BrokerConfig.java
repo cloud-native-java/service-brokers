@@ -79,6 +79,7 @@ public class BrokerConfig {
         sdMetadata.put("supportUrl", brokerProperties.getSupportUrl());
         sdMetadata.put("displayName", brokerProperties.getDisplayName());
         sdMetadata.put("longDescription", brokerProperties.getLongDescription());
+        sdMetadata.put("imageUrl", brokerProperties.getImageUrl());
 
         return sdMetadata;
     }
