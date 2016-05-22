@@ -162,7 +162,9 @@ public class S3Service {
         String manageBucketArn;
         try {
             GetPolicyResult policyResult = identityManagement
-                    .getPolicy(new GetPolicyRequest().withPolicyArn(String.format("arn:aws:iam::%s:policy/manage-bucket", identityManagement.getUser().getUser().getUserId())));
+                    .getPolicy(new GetPolicyRequest().withPolicyArn(String.format("arn:aws:iam::%s:policy/manage-bucket-%s",
+                            identityManagement.getUser().getUser().getUserId(),
+                            identityManagement.getUser().getUser().getUserId())));
             manageBucketArn = policyResult.getPolicy().getArn();
         } catch (NoSuchEntityException ex) {
             CreatePolicyResult createPolicyResult = identityManagement

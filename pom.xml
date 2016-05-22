@@ -17,6 +17,7 @@
 
     <modules>
         <module>s3-service-broker</module>
+        <module>spring-boot-starter-amazon-s3-master</module>
     </modules>
 
     <build>
