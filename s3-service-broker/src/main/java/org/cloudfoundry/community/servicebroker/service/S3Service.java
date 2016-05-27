@@ -1,19 +1,17 @@
 package org.cloudfoundry.community.servicebroker.service;
 
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.amazonaws.services.identitymanagement.model.*;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.*;
-import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient;
-import com.amazonaws.services.securitytoken.model.Credentials;
-import com.amazonaws.services.securitytoken.model.GetSessionTokenRequest;
-import com.amazonaws.services.securitytoken.model.GetSessionTokenResult;
+import com.amazonaws.services.s3.model.CreateBucketRequest;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
+import org.cloudfoundry.community.servicebroker.exception.ServiceBrokerException;
 import org.cloudfoundry.community.servicebroker.model.S3User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +20,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -77,36 +76,17 @@ public class S3Service {
      * @param applicationId is the unique application id of the service instance in the broker's catalog
      * @return an instance of {@link S3User} containing credentials or null if an issue was encountered
      */
-    public S3User createBucket(String applicationId) {
+    public S3User createBucket(String applicationId) throws ServiceBrokerException {
         S3User user;
 
         try {
             user = createUserResult(applicationId);
         } catch (Exception ex) {
             log.error("Error creating IAM user {}", ex);
-            return null;
+            throw new ServiceBrokerException("Error creating IAM user {}", ex);
         }
-
-        // TODO: Remove clean up
-
-        // Wait for the policy to be attached before testing session-based management
-        // cleanUp(applicationId, user);
 
         return user;
-    }
-
-    private void cleanUp(String applicationId, S3User user) {
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        // Test object creation using the IAM user that was just created
-        manageServiceInstanceBucket(applicationId, user.getAccessKeyId(), user.getAccessKeySecret());
-
-        // Delete the service instance's S3 bucket and user account
-        deleteServiceInstanceBucket(applicationId, user.getAccessKeyId(), user.getCreateUserResult().getUser().getUserName());
     }
 
     /**
@@ -158,59 +138,39 @@ public class S3Service {
      *
      * @return a resource policy name for the AWS manage bucket policy
      */
-    private String getManageBucketPolicyArn() {
+    private String getManageBucketPolicyArn() throws ServiceBrokerException {
+
         String manageBucketArn;
+
         try {
+            // Get the IAM account identifier from the user's resource name
+            Pattern p = Pattern.compile("(?<=::)([\\d]*)(?=:)");
+            Matcher m = p.matcher(identityManagement.getUser().getUser().getArn());
+
+            // Use the account id to get the manage bucket policy
             GetPolicyResult policyResult = identityManagement
-                    .getPolicy(new GetPolicyRequest().withPolicyArn(String.format("arn:aws:iam::%s:policy/manage-bucket-%s",
-                            identityManagement.getUser().getUser().getUserId(),
-                            identityManagement.getUser().getUser().getUserId())));
+                    .getPolicy(new GetPolicyRequest().withPolicyArn(String.format("arn:aws:iam::%s:policy/manage-bucket",
+                            m.find() ? m.group(1) : ":")));
+
+            // Retrieve the manage bucket policy's ARN
             manageBucketArn = policyResult.getPolicy().getArn();
         } catch (NoSuchEntityException ex) {
-            CreatePolicyResult createPolicyResult = identityManagement
-                    .createPolicy(new CreatePolicyRequest()
-                            .withPolicyDocument(getManageBucketPolicyDocument())
-                            .withPolicyName("manage-bucket")
-                            .withDescription("Allows service instances to manage the content of an exclusive S3 bucket"));
-            manageBucketArn = createPolicyResult.getPolicy().getArn();
+            try {
+                // If the manage bucket policy does not exist, create one
+                CreatePolicyResult createPolicyResult = identityManagement
+                        .createPolicy(new CreatePolicyRequest()
+                                .withPolicyDocument(getManageBucketPolicyDocument())
+                                .withPolicyName("manage-bucket")
+                                .withDescription("Allows service instances to manage the content of an exclusive S3 bucket"));
+                manageBucketArn = createPolicyResult.getPolicy().getArn();
+            } catch (Exception exr) {
+                // The manage bucket policy could not be created
+                log.error(String.format("arn:aws:iam::%s:policy/manage-bucket",
+                        identityManagement.getUser().getUser().getUserId()), exr);
+                throw new ServiceBrokerException(exr);
+            }
         }
         return manageBucketArn;
-    }
-
-    /**
-     * Manage the service instance's S3 bucket using the IAM user that was created by the service broker
-     *
-     * @param applicationId   is the id of the service instance
-     * @param accessKeyId     is the access key id of the service instance's S3 credentials
-     * @param accessKeySecret is the access key secret of the service instance's S3 credentials
-     */
-    private void manageServiceInstanceBucket(String applicationId, String accessKeyId, String accessKeySecret) {
-        // Create a new session with the user credentials for the service instance
-        AWSSecurityTokenServiceClient stsClient =
-                new AWSSecurityTokenServiceClient(new BasicAWSCredentials(accessKeyId, accessKeySecret));
-
-        // Start a new session for managing a service instance's bucket
-        GetSessionTokenRequest getSessionTokenRequest =
-                new GetSessionTokenRequest().withDurationSeconds(7200);
-
-        // Get the session token for the service instance's bucket
-        GetSessionTokenResult sessionTokenResult =
-                stsClient.getSessionToken(getSessionTokenRequest);
-        Credentials sessionCredentials = sessionTokenResult.getCredentials();
-
-        // Create basic session credentials using the generated session token
-        BasicSessionCredentials basicSessionCredentials =
-                new BasicSessionCredentials(sessionCredentials.getAccessKeyId(),
-                        sessionCredentials.getSecretAccessKey(),
-                        sessionCredentials.getSessionToken());
-
-        // Create a new S3 client using the basic session credentials of the service instance
-        AmazonS3 testAmazonClient = new AmazonS3Client(basicSessionCredentials);
-
-        // Create a new object in the service instance's S3 bucket
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentType("text/plain");
-        testAmazonClient.putObject(new PutObjectRequest(applicationId, "test", new ByteArrayInputStream("test".getBytes()), objectMetadata));
     }
 
     /**
@@ -219,7 +179,7 @@ public class S3Service {
      * @param applicationId is the service instance's unique id from the broker catalog
      * @return a new {@link S3User} containing the credential details for the new service instance's IAM user
      */
-    public S3User createUserResult(String applicationId) {
+    public S3User createUserResult(String applicationId) throws ServiceBrokerException {
 
         S3User user = new S3User(applicationId);
 

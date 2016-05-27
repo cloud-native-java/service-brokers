@@ -8,6 +8,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,7 +26,7 @@ public class AmazonS3Controller {
         this.bucketName = bucketName;
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET, path="/resources")
     public List<Resource<S3ObjectSummary>> getBucketResources() {
 
         ObjectListing objectListing = amazonS3Template.getAmazonS3Client()
@@ -40,11 +41,11 @@ public class AmazonS3Controller {
                 .collect(Collectors.toList());
     }
 
-    @RequestMapping(value = "upload", method = RequestMethod.POST)
+    @RequestMapping(value = "/resources", method = RequestMethod.POST)
     public
     @ResponseBody
-    String handleFileUpload(@RequestParam("name") String name,
-                            @RequestParam("file") MultipartFile file) {
+    Object handleFileUpload(@RequestParam("name") String name,
+                                    @RequestParam("file") MultipartFile file) {
         if (!file.isEmpty()) {
             try {
                 ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -54,7 +55,7 @@ public class AmazonS3Controller {
                 amazonS3Template.getAmazonS3Client().putObject(new PutObjectRequest(bucketName, name, file.getInputStream(), objectMetadata)
                         .withCannedAcl(CannedAccessControlList.PublicRead));
 
-                return "You successfully uploaded " + name + "!";
+                return new RedirectView("/");
             } catch (Exception e) {
                 return "You failed to upload " + name + " => " + e.getMessage();
             }
