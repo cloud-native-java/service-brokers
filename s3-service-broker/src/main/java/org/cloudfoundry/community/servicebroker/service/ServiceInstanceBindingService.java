@@ -7,31 +7,29 @@ import org.cloudfoundry.community.servicebroker.model.*;
 
 /**
  * Handles bindings to service instances.
- * 
+ *
  * @author sgreenberg@gopivotal.com
  */
 public interface ServiceInstanceBindingService {
 
-	/**
-	 * Create a new binding to a service instance.
-	 * @param createServiceInstanceBindingRequest containing parameters sent from Cloud Controller
-	 * @return The newly created ServiceInstanceBinding
-	 * @throws ServiceInstanceBindingExistsException if the same binding already exists
-	 * @throws ServiceBrokerException on internal failure
-	 */
-	ServiceInstanceBinding createServiceInstanceBinding(
-			CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest)
-			throws ServiceInstanceBindingExistsException, ServiceBrokerException;
+    /**
+     * Creates a new binding to a service instance
+     *
+     * @param createServiceInstanceBindingRequest containing parameters sent from Cloud Controller
+     * @return the new ServiceInstanceBinding for the request
+     */
+    ServiceInstanceBinding createServiceInstanceBinding(
+            CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest)
+            throws ServiceInstanceBindingExistsException, ServiceBrokerException;
 
-	/**
-	 * Delete the service instance binding. If a binding doesn't exist, 
-	 * return null.
-	 * @param deleteServiceInstanceBindingRequest containing parameters sent from Cloud Controller
-     * @return The deleted ServiceInstanceBinding or null if one does not exist
-     * @throws ServiceBrokerException on internal failure
-	 */
-	ServiceInstanceBinding deleteServiceInstanceBinding(
-			DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest) 
-	        throws ServiceBrokerException;
-	
+    /**
+     * Deletes an existing binding to a service instance
+     *
+     * @param deleteServiceInstanceBindingRequest sent from the Cloud Controller
+     * @return The deleted ServiceInstanceBinding, or returns null if no binding exists
+     * @throws ServiceBrokerException if a failure occurred during deletion of a binding
+     */
+    ServiceInstanceBinding deleteServiceInstanceBinding(
+            DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest)
+            throws ServiceBrokerException;
 }

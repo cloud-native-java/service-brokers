@@ -42,16 +42,23 @@ public class ServiceInstanceServiceImpl implements ServiceInstanceService {
      * @throws ServiceBrokerException         if something goes wrong internally
      */
     @Override
-    public ServiceInstance createServiceInstance(CreateServiceInstanceRequest createServiceInstanceRequest) throws ServiceInstanceExistsException, ServiceBrokerException {
+    public ServiceInstance createServiceInstance(
+            CreateServiceInstanceRequest createServiceInstanceRequest)
+            throws ServiceInstanceExistsException, ServiceBrokerException {
+
         ServiceInstance serviceInstance = new ServiceInstance(createServiceInstanceRequest);
 
         if (serviceInstanceRepository.exists(serviceInstance.getServiceInstanceId()))
             throw new ServiceInstanceExistsException(serviceInstance);
 
         try {
-            S3User user = s3Service.createBucket(serviceInstance.getServiceInstanceId());
-            serviceInstance.setCredential(new Credential(user.getCreateUserResult().getUser().getUserName(),
-                    user.getAccessKeyId(), user.getAccessKeySecret()));
+            S3User user = s3Service.createBucket(
+                    serviceInstance.getServiceInstanceId());
+
+            serviceInstance.setCredential(
+                    new Credential(user.getCreateUserResult().getUser().getUserName(),
+                            user.getAccessKeyId(), user.getAccessKeySecret()));
+
             serviceInstance = serviceInstanceRepository.save(serviceInstance);
         } catch (Exception ex) {
             log.error(ex);
