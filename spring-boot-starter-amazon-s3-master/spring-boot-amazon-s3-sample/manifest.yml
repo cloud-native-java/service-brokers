@@ -6,6 +6,5 @@ applications:
   instances: 1
   timeout: 180
   host: s3-sample-app
-  domain: local.pcfdev.io
   services:
     - s3-service

@@ -27,4 +27,6 @@ body {
 
 .fa-5x {
     line-height: 210px;
+    display: table;
+    margin: auto;
 }
