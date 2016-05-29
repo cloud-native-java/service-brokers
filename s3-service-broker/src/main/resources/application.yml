@@ -16,6 +16,9 @@ spring:
     generate-ddl: true
 management:
   contextPath: /management
+endpoints:
+  info:
+    enabled: true
 security:
   basic:
     enabled: true
