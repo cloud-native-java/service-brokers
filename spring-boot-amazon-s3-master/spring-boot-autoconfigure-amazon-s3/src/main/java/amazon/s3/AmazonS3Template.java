@@ -35,7 +35,8 @@ public class AmazonS3Template {
      * @param accessKeyId     is the access key id credential for the specified bucket name
      * @param accessKeySecret is the access key secret for the specified bucket name
      */
-    public AmazonS3Template(String defaultBucket, String accessKeyId, String accessKeySecret) {
+    public AmazonS3Template(String defaultBucket, String accessKeyId,
+                            String accessKeySecret) {
         this.defaultBucket = defaultBucket;
         this.accessKeyId = accessKeyId;
         this.accessKeySecret = accessKeySecret;

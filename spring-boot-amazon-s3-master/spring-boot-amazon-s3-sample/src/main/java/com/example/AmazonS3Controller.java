@@ -21,12 +21,13 @@ public class AmazonS3Controller {
     private String bucketName;
 
     @Autowired
-    public AmazonS3Controller(AmazonS3Template amazonS3Template, @Value("${amazon.s3.default-bucket}") String bucketName) {
+    public AmazonS3Controller(AmazonS3Template amazonS3Template,
+                              @Value("${amazon.s3.default-bucket}") String bucketName) {
         this.amazonS3Template = amazonS3Template;
         this.bucketName = bucketName;
     }
 
-    @RequestMapping(method = RequestMethod.GET, path="/resources")
+    @RequestMapping(method = RequestMethod.GET, path = "/resources")
     public List<Resource<S3ObjectSummary>> getBucketResources() {
 
         ObjectListing objectListing = amazonS3Template.getAmazonS3Client()
@@ -45,15 +46,17 @@ public class AmazonS3Controller {
     public
     @ResponseBody
     Object handleFileUpload(@RequestParam("name") String name,
-                                    @RequestParam("file") MultipartFile file) {
+                            @RequestParam("file") MultipartFile file) {
         if (!file.isEmpty()) {
             try {
                 ObjectMetadata objectMetadata = new ObjectMetadata();
                 objectMetadata.setContentType(file.getContentType());
 
                 // Upload the file for public read
-                amazonS3Template.getAmazonS3Client().putObject(new PutObjectRequest(bucketName, name, file.getInputStream(), objectMetadata)
-                        .withCannedAcl(CannedAccessControlList.PublicRead));
+                amazonS3Template.getAmazonS3Client().putObject(
+                        new PutObjectRequest(bucketName, name,
+                                file.getInputStream(), objectMetadata)
+                                .withCannedAcl(CannedAccessControlList.PublicRead));
 
                 return new RedirectView("/");
             } catch (Exception e) {
