@@ -5,7 +5,6 @@
     <artifactId>spring-boot-amazon-s3-master</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Spring Boot AutoConfiguration :: Amazon S3 Master</name>
 
     <parent>
         <groupId>cnj</groupId>

@@ -8,7 +8,6 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Spring Boot AutoConfiguration :: Amazon S3 Sample</name>
     <description>Spring Boot sample Amazon S3 app</description>
 
     <parent>
