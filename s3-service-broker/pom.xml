@@ -20,7 +20,6 @@
         <java.version>1.8</java.version>
         <aws-java-sdk.version>1.10.39</aws-java-sdk.version>
         <guava.version>18.0</guava.version>
-        <lombok.version>1.16.6</lombok.version>
     </properties>
 
     <dependencies>
@@ -76,11 +75,6 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
