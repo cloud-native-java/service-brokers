@@ -26,9 +26,6 @@ public class BrokerConfig {
     @Autowired
     private BrokerProperties brokerProperties;
 
-    public BrokerConfig() {
-    }
-
     @Bean
     CommandLineRunner commandLineRunner(ServiceDefinitionRepository serviceDefinitionRepository,
                                         Environment environment) {
