@@ -2,6 +2,7 @@
 applications:
 - name: s3-broker
   path: ./target/s3-service-broker.jar
+  buildpack: https://github.com/cloudfoundry/java-buildpack.git
   memory: 600M
   instances: 1
   timeout: 180
