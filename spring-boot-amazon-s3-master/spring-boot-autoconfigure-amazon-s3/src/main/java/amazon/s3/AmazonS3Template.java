@@ -15,11 +15,6 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.util.Date;
 
-/**
- * This class is a client for interacting with Amazon S3 bucket resources.
- *
- * @author kbastani
- */
 @Component
 public class AmazonS3Template {
 
