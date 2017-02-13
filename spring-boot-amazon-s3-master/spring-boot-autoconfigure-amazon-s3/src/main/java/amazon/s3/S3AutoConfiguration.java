@@ -6,11 +6,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * This class auto-configures a {@link AmazonS3Template} bean.
- *
- * @author kbastani
- */
 @Configuration
 @ConditionalOnMissingBean(AmazonS3Template.class)
 @EnableConfigurationProperties(AmazonProperties.class)
