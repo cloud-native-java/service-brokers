@@ -6,18 +6,20 @@ import org.cloudfoundry.community.servicebroker.catalog.ServiceInstanceBinding;
 import java.util.Map;
 
 /**
- * The response sent to the cloud controller when a bind
- * request is successful.
- * 
+ * The response sent to the cloud controller when
+ * a bind request is successful.
+ *
  * @author sgreenberg@gopivotal.com
- * @author <A href="mailto:josh@joshlong.com">Josh Long</A>
+ * @author <A href="mailto:josh@joshlong.com">Josh
+ * Long</A>
  */
 public class ServiceInstanceBindingResponse {
 
 	ServiceInstanceBinding binding;
-	
-	public ServiceInstanceBindingResponse() {}
-	
+
+	public ServiceInstanceBindingResponse() {
+	}
+
 	public ServiceInstanceBindingResponse(ServiceInstanceBinding binding) {
 		this.binding = binding;
 	}
@@ -31,5 +33,5 @@ public class ServiceInstanceBindingResponse {
 	public String getSyslogDrainUrl() {
 		return binding.getSyslogDrainUrl();
 	}
-	
+
 }

@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Entity
 public class DashboardClient implements Serializable {
 
-    @Id
+	@Id
 	private String id;
 	private String secret;
 
@@ -36,5 +36,5 @@ public class DashboardClient implements Serializable {
 	public String getRedirectUri() {
 		return redirectUri;
 	}
-	
+
 }

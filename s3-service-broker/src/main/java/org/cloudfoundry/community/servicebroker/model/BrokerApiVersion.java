@@ -1,6 +1,5 @@
 package org.cloudfoundry.community.servicebroker.model;
 
-
 public class BrokerApiVersion {
 
 	public final static String DEFAULT_API_VERSION_HEADER = "X-Broker-Api-Version";

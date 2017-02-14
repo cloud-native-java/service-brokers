@@ -7,9 +7,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.cloudfoundry.community.servicebroker.catalog.ServiceInstance;
 
 /**
- * The response from the broker sent back to the cloud controller 
- * on a successful service instance creation request
- * 
+ * The response from the broker sent back to the
+ * cloud controller on a successful service
+ * instance creation request
+ *
  * @author sgreenberg@gopivotal.com
  */
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE)
@@ -17,9 +18,10 @@ import org.cloudfoundry.community.servicebroker.catalog.ServiceInstance;
 public class CreateServiceInstanceResponse {
 
 	private ServiceInstance instance;
-	
-	public CreateServiceInstanceResponse() {}
-	
+
+	public CreateServiceInstanceResponse() {
+	}
+
 	public CreateServiceInstanceResponse(ServiceInstance instance) {
 		this.instance = instance;
 	}
@@ -29,5 +31,5 @@ public class CreateServiceInstanceResponse {
 	public String getDashboardUrl() {
 		return instance.getDashboardUrl();
 	}
-	
+
 }

@@ -8,192 +8,179 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "broker")
 public class BrokerProperties {
 
-    private String providerDisplayName;
-    private String documentationUrl;
-    private String supportUrl;
-    private String displayName;
-    private String longDescription;
-    private String imageUrl;
+	private String providerDisplayName;
+	private String documentationUrl;
+	private String supportUrl;
+	private String displayName;
+	private String longDescription;
+	private String imageUrl;
 
-    @NestedConfigurationProperty
-    private BasicPlan basicPlan;
+	@NestedConfigurationProperty
+	private BasicPlan basicPlan;
 
-    @NestedConfigurationProperty
-    private Definition definition;
+	@NestedConfigurationProperty
+	private Definition definition;
 
-    public static class BasicPlan {
-        private String id;
-        private String name;
-        private String description;
-        private Boolean free;
+	public String getProviderDisplayName() {
+		return providerDisplayName;
+	}
 
-        public String getId() {
-            return id;
-        }
+	public void setProviderDisplayName(String providerDisplayName) {
+		this.providerDisplayName = providerDisplayName;
+	}
 
-        public void setId(String id) {
-            this.id = id;
-        }
+	public String getDocumentationUrl() {
+		return documentationUrl;
+	}
 
-        public String getName() {
-            return name;
-        }
+	public void setDocumentationUrl(String documentationUrl) {
+		this.documentationUrl = documentationUrl;
+	}
 
-        public void setName(String name) {
-            this.name = name;
-        }
+	public String getSupportUrl() {
+		return supportUrl;
+	}
 
-        public String getDescription() {
-            return description;
-        }
+	public void setSupportUrl(String supportUrl) {
+		this.supportUrl = supportUrl;
+	}
 
-        public void setDescription(String description) {
-            this.description = description;
-        }
+	public String getDisplayName() {
+		return displayName;
+	}
 
-        public Boolean getFree() {
-            return free;
-        }
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
 
-        public void setFree(Boolean free) {
-            this.free = free;
-        }
+	public String getLongDescription() {
+		return longDescription;
+	}
 
-        @Override
-        public String toString() {
-            return "BasicPlan{" +
-                    "id='" + id + '\'' +
-                    ", name='" + name + '\'' +
-                    ", description='" + description + '\'' +
-                    ", free=" + free +
-                    '}';
-        }
-    }
+	public void setLongDescription(String longDescription) {
+		this.longDescription = longDescription;
+	}
 
-    public static class Definition {
-        private String id;
-        private String name;
-        private String description;
-        private Boolean bindable;
+	public String getImageUrl() {
+		return imageUrl;
+	}
 
-        public String getId() {
-            return id;
-        }
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
 
-        public void setId(String id) {
-            this.id = id;
-        }
+	public BasicPlan getBasicPlan() {
+		return basicPlan;
+	}
 
-        public String getName() {
-            return name;
-        }
+	public void setBasicPlan(BasicPlan basicPlan) {
+		this.basicPlan = basicPlan;
+	}
 
-        public void setName(String name) {
-            this.name = name;
-        }
+	public Definition getDefinition() {
+		return definition;
+	}
 
-        public String getDescription() {
-            return description;
-        }
+	public void setDefinition(Definition definition) {
+		this.definition = definition;
+	}
 
-        public void setDescription(String description) {
-            this.description = description;
-        }
+	@Override
+	public String toString() {
+		return "BrokerProperties{" + "providerDisplayName='" + providerDisplayName + '\''
+				+ ", documentationUrl='" + documentationUrl + '\'' + ", supportUrl='"
+				+ supportUrl + '\'' + ", displayName='" + displayName + '\''
+				+ ", longDescription='" + longDescription + '\'' + ", imageUrl='" + imageUrl
+				+ '\'' + ", basicPlan=" + basicPlan + ", definition=" + definition + '}';
+	}
 
-        public Boolean getBindable() {
-            return bindable;
-        }
+	public static class BasicPlan {
+		private String id;
+		private String name;
+		private String description;
+		private Boolean free;
 
-        public void setBindable(Boolean bindable) {
-            this.bindable = bindable;
-        }
+		public String getId() {
+			return id;
+		}
 
-        @Override
-        public String toString() {
-            return "Definition{" +
-                    "id='" + id + '\'' +
-                    ", name='" + name + '\'' +
-                    ", description='" + description + '\'' +
-                    ", bindable=" + bindable +
-                    '}';
-        }
-    }
+		public void setId(String id) {
+			this.id = id;
+		}
 
-    public String getProviderDisplayName() {
-        return providerDisplayName;
-    }
+		public String getName() {
+			return name;
+		}
 
-    public void setProviderDisplayName(String providerDisplayName) {
-        this.providerDisplayName = providerDisplayName;
-    }
+		public void setName(String name) {
+			this.name = name;
+		}
 
-    public String getDocumentationUrl() {
-        return documentationUrl;
-    }
+		public String getDescription() {
+			return description;
+		}
 
-    public void setDocumentationUrl(String documentationUrl) {
-        this.documentationUrl = documentationUrl;
-    }
+		public void setDescription(String description) {
+			this.description = description;
+		}
 
-    public String getSupportUrl() {
-        return supportUrl;
-    }
+		public Boolean getFree() {
+			return free;
+		}
 
-    public void setSupportUrl(String supportUrl) {
-        this.supportUrl = supportUrl;
-    }
+		public void setFree(Boolean free) {
+			this.free = free;
+		}
 
-    public String getDisplayName() {
-        return displayName;
-    }
+		@Override
+		public String toString() {
+			return "BasicPlan{" + "id='" + id + '\'' + ", name='" + name + '\''
+					+ ", description='" + description + '\'' + ", free=" + free + '}';
+		}
+	}
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
+	public static class Definition {
+		private String id;
+		private String name;
+		private String description;
+		private Boolean bindable;
 
-    public String getLongDescription() {
-        return longDescription;
-    }
+		public String getId() {
+			return id;
+		}
 
-    public void setLongDescription(String longDescription) {
-        this.longDescription = longDescription;
-    }
+		public void setId(String id) {
+			this.id = id;
+		}
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
+		public String getName() {
+			return name;
+		}
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
+		public void setName(String name) {
+			this.name = name;
+		}
 
-    public BasicPlan getBasicPlan() {
-        return basicPlan;
-    }
+		public String getDescription() {
+			return description;
+		}
 
-    public void setBasicPlan(BasicPlan basicPlan) {
-        this.basicPlan = basicPlan;
-    }
+		public void setDescription(String description) {
+			this.description = description;
+		}
 
-    public Definition getDefinition() {
-        return definition;
-    }
+		public Boolean getBindable() {
+			return bindable;
+		}
 
-    public void setDefinition(Definition definition) {
-        this.definition = definition;
-    }
+		public void setBindable(Boolean bindable) {
+			this.bindable = bindable;
+		}
 
-    @Override
-    public String toString() {
-        return "BrokerProperties{" +
-                "providerDisplayName='" + providerDisplayName + '\'' +
-                ", documentationUrl='" + documentationUrl + '\'' +
-                ", supportUrl='" + supportUrl + '\'' +
-                ", displayName='" + displayName + '\'' +
-                ", longDescription='" + longDescription + '\'' +
-                ", imageUrl='" + imageUrl + '\'' +
-                ", basicPlan=" + basicPlan +
-                ", definition=" + definition +
-                '}';
-    }
+		@Override
+		public String toString() {
+			return "Definition{" + "id='" + id + '\'' + ", name='" + name + '\''
+					+ ", description='" + description + '\'' + ", bindable=" + bindable + '}';
+		}
+	}
 }

@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 public class CatalogControllerIntegrationTest {
-	
+
 	MockMvc mockMvc;
 
 	@InjectMocks
@@ -23,7 +23,7 @@ public class CatalogControllerIntegrationTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 
-	    this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
-	            .setMessageConverters(new MappingJackson2HttpMessageConverter()).build();
+		this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
+				.setMessageConverters(new MappingJackson2HttpMessageConverter()).build();
 	}
 }

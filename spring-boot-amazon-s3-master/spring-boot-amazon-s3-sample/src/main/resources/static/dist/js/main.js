@@ -1,13 +1,13 @@
-$(document).ready(function() {
-    $("input:file").change(function() {
+$(document).ready(function () {
+    $("input:file").change(function () {
         var fileName = $(this).val();
         $("#fileName").val(fileName.split("\\").pop())
             .attr("disabled", null);
     });
 
-    $.getJSON("/s3/resources", function(data) {
+    $.getJSON("/s3/resources", function (data) {
         var items = [];
-        $.each(data, function(key, val) {
+        $.each(data, function (key, val) {
             var fileName = val.links[0].href;
             var iconType = "file";
             if (fileName.match("(pdf)")) {

@@ -10,11 +10,10 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Request sent from the cloud controller to bind to a service 
- * instance.
- * 
- * @author sgreenberg@gopivotal.com
+ * Request sent from the cloud controller to bind
+ * to a service instance.
  *
+ * @author sgreenberg@gopivotal.com
  */
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE)
 public class CreateServiceInstanceBindingRequest {
@@ -23,7 +22,7 @@ public class CreateServiceInstanceBindingRequest {
 	@JsonSerialize
 	@JsonProperty("service_id")
 	private String serviceDefinitionId;
-	
+
 	@NotEmpty
 	@JsonSerialize
 	@JsonProperty("plan_id")
@@ -42,17 +41,19 @@ public class CreateServiceInstanceBindingRequest {
 
 	@JsonIgnore
 	private String bindingId;
-	
+
 	public CreateServiceInstanceBindingRequest() {
 	}
-	
-	public CreateServiceInstanceBindingRequest(String serviceDefinitionId, String planId, String appGuid) {
+
+	public CreateServiceInstanceBindingRequest(String serviceDefinitionId, String planId,
+			String appGuid) {
 		this.serviceDefinitionId = serviceDefinitionId;
 		this.planId = planId;
 		this.appGuid = appGuid;
 	}
 
-	public CreateServiceInstanceBindingRequest(String serviceDefinitionId, String planId, String appGuid, Map<String, Object> parameters) {
+	public CreateServiceInstanceBindingRequest(String serviceDefinitionId, String planId,
+			String appGuid, Map<String, Object> parameters) {
 		this(serviceDefinitionId, planId, appGuid);
 		this.parameters = parameters;
 	}
@@ -60,7 +61,7 @@ public class CreateServiceInstanceBindingRequest {
 	public String getServiceDefinitionId() {
 		return serviceDefinitionId;
 	}
-	
+
 	public void setServiceDefinitionId(String serviceDefinitionId) {
 		this.serviceDefinitionId = serviceDefinitionId;
 	}
@@ -68,7 +69,7 @@ public class CreateServiceInstanceBindingRequest {
 	public String getPlanId() {
 		return planId;
 	}
-	
+
 	public void setPlanId(String planId) {
 		this.planId = planId;
 	}
@@ -80,12 +81,12 @@ public class CreateServiceInstanceBindingRequest {
 	public void setAppGuid(String appGuid) {
 		this.appGuid = appGuid;
 	}
-	
-	public String getBindingId() { 
+
+	public String getBindingId() {
 		return bindingId;
 	}
-	
-	public String getServiceInstanceId() { 
+
+	public String getServiceInstanceId() {
 		return serviceInstanceId;
 	}
 
@@ -97,7 +98,8 @@ public class CreateServiceInstanceBindingRequest {
 		this.parameters = parameters;
 	}
 
-	public CreateServiceInstanceBindingRequest withServiceInstanceId(final String serviceInstanceId) {
+	public CreateServiceInstanceBindingRequest withServiceInstanceId(
+			final String serviceInstanceId) {
 		this.serviceInstanceId = serviceInstanceId;
 		return this;
 	}
@@ -106,20 +108,21 @@ public class CreateServiceInstanceBindingRequest {
 		this.bindingId = bindingId;
 		return this;
 	}
-	
+
 	public CreateServiceInstanceBindingRequest and() {
 		return this;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
 		CreateServiceInstanceBindingRequest that = (CreateServiceInstanceBindingRequest) o;
-		return Objects.equals(serviceDefinitionId, that.serviceDefinitionId) &&
-				Objects.equals(planId, that.planId) &&
-				Objects.equals(appGuid, that.appGuid) &&
-				Objects.equals(parameters, that.parameters);
+		return Objects.equals(serviceDefinitionId, that.serviceDefinitionId)
+				&& Objects.equals(planId, that.planId) && Objects.equals(appGuid, that.appGuid)
+				&& Objects.equals(parameters, that.parameters);
 	}
 
 	@Override

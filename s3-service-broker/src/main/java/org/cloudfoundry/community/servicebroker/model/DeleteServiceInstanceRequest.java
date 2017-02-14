@@ -1,9 +1,10 @@
 package org.cloudfoundry.community.servicebroker.model;
 
 /**
- * A request sent by the cloud controller to remove a service.
- * @author krujos
+ * A request sent by the cloud controller to
+ * remove a service.
  *
+ * @author krujos
  */
 public class DeleteServiceInstanceRequest {
 
@@ -11,9 +12,8 @@ public class DeleteServiceInstanceRequest {
 	private final String serviceId;
 	private final String planId;
 
-	public DeleteServiceInstanceRequest(String instanceId, String serviceId,
-			String planId) {
-		this.serviceInstanceId = instanceId; 
+	public DeleteServiceInstanceRequest(String instanceId, String serviceId, String planId) {
+		this.serviceInstanceId = instanceId;
 		this.serviceId = serviceId;
 		this.planId = planId;
 	}

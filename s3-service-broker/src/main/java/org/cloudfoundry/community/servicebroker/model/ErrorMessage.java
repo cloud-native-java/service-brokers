@@ -3,10 +3,10 @@ package org.cloudfoundry.community.servicebroker.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Used to send errors back to the cloud controller.
- * 
- * @author sgreenberg@gopivotal.com
+ * Used to send errors back to the cloud
+ * controller.
  *
+ * @author sgreenberg@gopivotal.com
  */
 public class ErrorMessage {
 
@@ -24,5 +24,5 @@ public class ErrorMessage {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	
+
 }

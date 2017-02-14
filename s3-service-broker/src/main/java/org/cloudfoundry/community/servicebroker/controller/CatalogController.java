@@ -18,37 +18,40 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * See: Source: http://docs.cloudfoundry.com/docs/running/architecture/services/writing-service.html
+ * See: Source:
+ * http://docs.cloudfoundry.com/docs/running
+ * /architecture/services/writing-service.html
  *
  * @author sgreenberg@gopivotal.com
  */
 @RestController
 public class CatalogController extends BaseController {
 
-    public static final String BASE_PATH = "/v2/catalog";
+	public static final String BASE_PATH = "/v2/catalog";
 
-    private static final Logger logger = LoggerFactory.getLogger(CatalogController.class);
+	private static final Logger logger = LoggerFactory.getLogger(CatalogController.class);
 
-    private CatalogService service;
-    private ObjectMapper objectMapper;
+	private CatalogService service;
+	private ObjectMapper objectMapper;
 
-    @Autowired
-    public CatalogController(CatalogService service, ObjectMapper objectMapper) {
-        this.service = service;
-        this.objectMapper = objectMapper;
-    }
+	@Autowired
+	public CatalogController(CatalogService service, ObjectMapper objectMapper) {
+		this.service = service;
+		this.objectMapper = objectMapper;
+	}
 
-    @ResponseBody
-    @RequestMapping(value = BASE_PATH, method = RequestMethod.GET)
-    public Catalog getCatalog() {
-        logger.debug("GET: " + BASE_PATH + ", getCatalog()");
-        return service.getCatalog();
-    }
+	@ResponseBody
+	@RequestMapping(value = BASE_PATH, method = RequestMethod.GET)
+	public Catalog getCatalog() {
+		logger.debug("GET: " + BASE_PATH + ", getCatalog()");
+		return service.getCatalog();
+	}
 
-    @ResponseBody
-    @RequestMapping(value = "/", method = RequestMethod.GET)
-    public ResponseEntity<Map> getIndex() throws IOException {
-        return new ResponseEntity<Map>(objectMapper.readValue("{ \"status\": \"UP\" }", HashMap.class), HttpStatus.OK);
-    }
+	@ResponseBody
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public ResponseEntity<Map> getIndex() throws IOException {
+		return new ResponseEntity<Map>(objectMapper.readValue("{ \"status\": \"UP\" }",
+				HashMap.class), HttpStatus.OK);
+	}
 
 }

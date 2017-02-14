@@ -7,5 +7,5 @@ public class CatalogFixture {
 	public static Catalog getCatalog() {
 		return new Catalog(ServiceFixture.getAllServices());
 	}
-	
+
 }

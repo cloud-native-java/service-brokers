@@ -3,10 +3,10 @@ package org.cloudfoundry.community.servicebroker.model;
 import org.cloudfoundry.community.servicebroker.catalog.ServiceInstance;
 
 /**
- *  A request sent by the cloud controller to remove a binding
- *  of a service.
- * @author krujos
+ * A request sent by the cloud controller to
+ * remove a binding of a service.
  *
+ * @author krujos
  */
 public class DeleteServiceInstanceBindingRequest {
 
@@ -15,11 +15,11 @@ public class DeleteServiceInstanceBindingRequest {
 	private final ServiceInstance instance;
 	private final String planId;
 
-	public DeleteServiceInstanceBindingRequest(String bindingId,
-			ServiceInstance instance, String serviceId, String planId) {
+	public DeleteServiceInstanceBindingRequest(String bindingId, ServiceInstance instance,
+			String serviceId, String planId) {
 		this.bindingId = bindingId;
 		this.instance = instance;
-		this.serviceId = serviceId; 
+		this.serviceId = serviceId;
 		this.planId = planId;
 	}
 

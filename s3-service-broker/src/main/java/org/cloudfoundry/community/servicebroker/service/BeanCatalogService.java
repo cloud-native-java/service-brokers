@@ -6,26 +6,27 @@ import org.cloudfoundry.community.servicebroker.repositories.ServiceDefinitionRe
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * An implementation of the CatalogService that gets the catalog injected (ie configure 
- * in spring config)
- * 
- * @author sgreenberg@gopivotal.com
+ * An implementation of the CatalogService that
+ * gets the catalog injected (ie configure in
+ * spring config)
  *
+ * @author sgreenberg@gopivotal.com
  */
 public class BeanCatalogService implements CatalogService {
 
 	private Catalog catalog;
-    private ServiceDefinitionRepository serviceDefinitionRepository;
+	private ServiceDefinitionRepository serviceDefinitionRepository;
 
 	@Autowired
-	public BeanCatalogService(Catalog catalog, ServiceDefinitionRepository serviceDefinitionRepository) {
+	public BeanCatalogService(Catalog catalog,
+			ServiceDefinitionRepository serviceDefinitionRepository) {
 		this.catalog = catalog;
-        this.serviceDefinitionRepository = serviceDefinitionRepository;
+		this.serviceDefinitionRepository = serviceDefinitionRepository;
 	}
 
 	@Override
 	public Catalog getCatalog() {
-        catalog.getServices();
+		catalog.getServices();
 		return catalog;
 	}
 

@@ -14,13 +14,13 @@ public class PlanFixture {
 		plans.add(getPlanTwo());
 		return new HashSet<>(plans);
 	}
-		
+
 	public static Plan getPlanOne() {
 		return new Plan("plan-one-id", "Plan One", "Description for Plan One");
 	}
-	
+
 	public static Plan getPlanTwo() {
 		return new Plan("plan-two-id", "Plan Two", "Description for Plan Two");
 	}
-	
+
 }

@@ -18,53 +18,56 @@ import java.util.List;
 @Service
 public class Catalog implements Serializable {
 
-    private List<ServiceDefinition> services = new ArrayList<>();
+	@Autowired
+	ServiceDefinitionRepository serviceDefinitionRepository;
+	private List<ServiceDefinition> services = new ArrayList<>();
 
-    @Autowired
-    ServiceDefinitionRepository serviceDefinitionRepository;
+	public Catalog() {
+	}
 
-    public Catalog() {
-    }
+	public Catalog(List<ServiceDefinition> services) {
+		this.setServices(services);
+	}
 
-    public Catalog(List<ServiceDefinition> services) {
-        this.setServices(services);
-    }
+	public List<ServiceDefinition> getServices() {
+		if (services.size() == 0) {
+			services = new ArrayList<>(
+					(Collection<ServiceDefinition>) serviceDefinitionRepository.findAll());
+		}
+		return services;
+	}
 
-    public List<ServiceDefinition> getServices() {
-        if (services.size() == 0) {
-            services = new ArrayList<>((Collection<ServiceDefinition>) serviceDefinitionRepository.findAll());
-        }
-        return services;
-    }
+	private void setServices(List<ServiceDefinition> services) {
+		if (services == null) {
+			this.services = new ArrayList<>(
+					(Collection<ServiceDefinition>) serviceDefinitionRepository.findAll());
+		}
+		else {
+			this.services = services;
+		}
+	}
 
-    private void setServices(List<ServiceDefinition> services) {
-        if (services == null) {
-            this.services = new ArrayList<>((Collection<ServiceDefinition>) serviceDefinitionRepository.findAll());
-        } else {
-            this.services = services;
-        }
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+		Catalog catalog = (Catalog) o;
 
-        Catalog catalog = (Catalog) o;
+		return !(services != null ? !services.equals(catalog.services)
+				: catalog.services != null);
 
-        return !(services != null ? !services.equals(catalog.services) : catalog.services != null);
+	}
 
-    }
+	@Override
+	public int hashCode() {
+		return services != null ? services.hashCode() : 0;
+	}
 
-    @Override
-    public int hashCode() {
-        return services != null ? services.hashCode() : 0;
-    }
-
-    @Override
-    public String toString() {
-        return "Catalog{" +
-                "services=" + services +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "Catalog{" + "services=" + services + '}';
+	}
 }

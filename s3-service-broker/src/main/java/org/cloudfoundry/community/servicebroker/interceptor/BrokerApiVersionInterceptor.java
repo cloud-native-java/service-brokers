@@ -1,11 +1,11 @@
 package org.cloudfoundry.community.servicebroker.interceptor;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.cloudfoundry.community.servicebroker.exception.ServiceBrokerApiVersionException;
 import org.cloudfoundry.community.servicebroker.model.BrokerApiVersion;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class BrokerApiVersionInterceptor extends HandlerInterceptorAdapter {
 
@@ -25,7 +25,7 @@ public class BrokerApiVersionInterceptor extends HandlerInterceptorAdapter {
 			String apiVersion = request.getHeader(version.getBrokerApiVersionHeader());
 			if (!version.getApiVersion().equals(apiVersion)) {
 				throw new ServiceBrokerApiVersionException(version.getApiVersion(), apiVersion);
-			} 
+			}
 		}
 		return true;
 	}
