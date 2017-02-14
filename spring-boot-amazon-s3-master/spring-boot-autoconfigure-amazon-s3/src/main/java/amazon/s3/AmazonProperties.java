@@ -146,42 +146,6 @@ public class AmazonProperties {
 		}
 	}
 
-	/**
-	 * A property group for Amazon Web Service (AWS)
-	 * configurations
-	 */
-	public static class S3 {
-
-		private String defaultBucket;
-
-		/**
-		 * The Amazon S3 bucket name for this
-		 * application.
-		 *
-		 * @return a default Amazon S3 bucket name for
-		 * this application.
-		 */
-		public String getDefaultBucket() {
-			return defaultBucket;
-		}
-
-		/**
-		 * The Amazon S3 bucket name for this
-		 * application.
-		 *
-		 * @param defaultBucket is the default Amazon
-		 * S3 bucket name for this application.
-		 */
-		public void setDefaultBucket(String defaultBucket) {
-			this.defaultBucket = defaultBucket;
-		}
-
-		@Override
-		public String toString() {
-			return "S3{" + "defaultBucket='" + defaultBucket + '\'' + '}';
-		}
-	}
-
 	@Override
 	public String toString() {
 		return "AmazonProperties{" + "aws=" + aws + ", amazon.s3=" + s3 + '}';
