@@ -14,25 +14,25 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class BeanCatalogService implements CatalogService {
 
-	private Catalog catalog;
-	private ServiceDefinitionRepository serviceDefinitionRepository;
+ private Catalog catalog;
+ private ServiceDefinitionRepository serviceDefinitionRepository;
 
-	@Autowired
-	public BeanCatalogService(Catalog catalog,
-			ServiceDefinitionRepository serviceDefinitionRepository) {
-		this.catalog = catalog;
-		this.serviceDefinitionRepository = serviceDefinitionRepository;
-	}
+ @Autowired
+ public BeanCatalogService(Catalog catalog,
+   ServiceDefinitionRepository serviceDefinitionRepository) {
+  this.catalog = catalog;
+  this.serviceDefinitionRepository = serviceDefinitionRepository;
+ }
 
-	@Override
-	public Catalog getCatalog() {
-		catalog.getServices();
-		return catalog;
-	}
+ @Override
+ public Catalog getCatalog() {
+  catalog.getServices();
+  return catalog;
+ }
 
-	@Override
-	public ServiceDefinition getServiceDefinition(String serviceId) {
-		return serviceDefinitionRepository.findOne(serviceId);
-	}
+ @Override
+ public ServiceDefinition getServiceDefinition(String serviceId) {
+  return serviceDefinitionRepository.findOne(serviceId);
+ }
 
 }

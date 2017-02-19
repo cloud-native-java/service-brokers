@@ -11,8 +11,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @WebAppConfiguration
 public class SpringBootAmazonS3SampleApplicationTests {
 
-	@Test
-	public void contextLoads() {
-	}
+ @Test
+ public void contextLoads() {
+ }
 
 }

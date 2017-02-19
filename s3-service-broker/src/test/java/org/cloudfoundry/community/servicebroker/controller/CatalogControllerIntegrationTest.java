@@ -11,19 +11,19 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 public class CatalogControllerIntegrationTest {
 
-	MockMvc mockMvc;
+ MockMvc mockMvc;
 
-	@InjectMocks
-	CatalogController controller;
+ @InjectMocks
+ CatalogController controller;
 
-	@Mock
-	CatalogService catalogService;
+ @Mock
+ CatalogService catalogService;
 
-	@Before
-	public void setup() {
-		MockitoAnnotations.initMocks(this);
+ @Before
+ public void setup() {
+  MockitoAnnotations.initMocks(this);
 
-		this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
-				.setMessageConverters(new MappingJackson2HttpMessageConverter()).build();
-	}
+  this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
+    .setMessageConverters(new MappingJackson2HttpMessageConverter()).build();
+ }
 }

@@ -23,59 +23,59 @@ import java.util.Map;
 @EnableConfigurationProperties(BrokerProperties.class)
 public class BrokerConfig {
 
-	@Autowired
-	private BrokerProperties brokerProperties;
+ @Autowired
+ private BrokerProperties brokerProperties;
 
-	@Bean
-	CommandLineRunner commandLineRunner(
-			ServiceDefinitionRepository serviceDefinitionRepository, Environment environment) {
-		return args -> {
-			// Initialize the service broker definition
-			// when running in cloud profile
-			if (Arrays.asList(environment.getActiveProfiles()).contains("cloud")) {
+ @Bean
+ CommandLineRunner commandLineRunner(
+   ServiceDefinitionRepository serviceDefinitionRepository, Environment environment) {
+  return args -> {
+   // Initialize the service broker definition
+   // when running in cloud profile
+   if (Arrays.asList(environment.getActiveProfiles()).contains("cloud")) {
 
-				// Initialize a default service definition
-				// for the purpose of this example
-				Plan plan = new Plan(brokerProperties.getBasicPlan().getId(), brokerProperties
-						.getBasicPlan().getName(), brokerProperties.getBasicPlan().getDescription());
+    // Initialize a default service definition
+    // for the purpose of this example
+    Plan plan = new Plan(brokerProperties.getBasicPlan().getId(), brokerProperties
+      .getBasicPlan().getName(), brokerProperties.getBasicPlan().getDescription());
 
-				// Set plan to free
-				plan.setFree(brokerProperties.getBasicPlan().getFree());
+    // Set plan to free
+    plan.setFree(brokerProperties.getBasicPlan().getFree());
 
-				// Create the default service definition
-				// describing the broker's purpose
-				ServiceDefinition serviceDefinition = new ServiceDefinition(brokerProperties
-						.getDefinition().getId(), brokerProperties.getDefinition().getName(),
-						brokerProperties.getDefinition().getDescription(), brokerProperties
-								.getDefinition().getBindable(), Collections.singleton(plan));
+    // Create the default service definition
+    // describing the broker's purpose
+    ServiceDefinition serviceDefinition = new ServiceDefinition(brokerProperties
+      .getDefinition().getId(), brokerProperties.getDefinition().getName(),
+      brokerProperties.getDefinition().getDescription(), brokerProperties
+        .getDefinition().getBindable(), Collections.singleton(plan));
 
-				// Set meta data
-				serviceDefinition.setMetadata(getServiceDefinitionMetaData());
+    // Set meta data
+    serviceDefinition.setMetadata(getServiceDefinitionMetaData());
 
-				// Update plan
-				serviceDefinitionRepository.save(serviceDefinition);
-			}
-		};
-	}
+    // Update plan
+    serviceDefinitionRepository.save(serviceDefinition);
+   }
+  };
+ }
 
-	@Bean
-	@Primary
-	public ObjectMapper jacksonObjectMapper() {
-		return Jackson2ObjectMapperBuilder.json().defaultViewInclusion(false)
-				.autoDetectFields(true).indentOutput(true)
-				.serializationInclusion(JsonInclude.Include.NON_NULL).build();
-	}
+ @Bean
+ @Primary
+ public ObjectMapper jacksonObjectMapper() {
+  return Jackson2ObjectMapperBuilder.json().defaultViewInclusion(false)
+    .autoDetectFields(true).indentOutput(true)
+    .serializationInclusion(JsonInclude.Include.NON_NULL).build();
+ }
 
-	public Map<String, Object> getServiceDefinitionMetaData() {
-		Map<String, Object> sdMetadata = new HashMap<>();
+ public Map<String, Object> getServiceDefinitionMetaData() {
+  Map<String, Object> sdMetadata = new HashMap<>();
 
-		sdMetadata.put("providerDisplayName", brokerProperties.getProviderDisplayName());
-		sdMetadata.put("documentationUrl", brokerProperties.getDocumentationUrl());
-		sdMetadata.put("supportUrl", brokerProperties.getSupportUrl());
-		sdMetadata.put("displayName", brokerProperties.getDisplayName());
-		sdMetadata.put("longDescription", brokerProperties.getLongDescription());
-		sdMetadata.put("imageUrl", brokerProperties.getImageUrl());
+  sdMetadata.put("providerDisplayName", brokerProperties.getProviderDisplayName());
+  sdMetadata.put("documentationUrl", brokerProperties.getDocumentationUrl());
+  sdMetadata.put("supportUrl", brokerProperties.getSupportUrl());
+  sdMetadata.put("displayName", brokerProperties.getDisplayName());
+  sdMetadata.put("longDescription", brokerProperties.getLongDescription());
+  sdMetadata.put("imageUrl", brokerProperties.getImageUrl());
 
-		return sdMetadata;
-	}
+  return sdMetadata;
+ }
 }

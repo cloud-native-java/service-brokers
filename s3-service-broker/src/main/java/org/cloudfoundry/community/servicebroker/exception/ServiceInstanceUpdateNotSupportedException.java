@@ -8,18 +8,18 @@ package org.cloudfoundry.community.servicebroker.exception;
  */
 public class ServiceInstanceUpdateNotSupportedException extends Exception {
 
-	private static final long serialVersionUID = 4719676639792071582L;
+ private static final long serialVersionUID = 4719676639792071582L;
 
-	public ServiceInstanceUpdateNotSupportedException(String message) {
-		super(message);
-	}
+ public ServiceInstanceUpdateNotSupportedException(String message) {
+  super(message);
+ }
 
-	public ServiceInstanceUpdateNotSupportedException(String message, Throwable cause) {
-		super(message, cause);
-	}
+ public ServiceInstanceUpdateNotSupportedException(String message, Throwable cause) {
+  super(message, cause);
+ }
 
-	public ServiceInstanceUpdateNotSupportedException(Throwable cause) {
-		super(cause);
-	}
+ public ServiceInstanceUpdateNotSupportedException(Throwable cause) {
+  super(cause);
+ }
 
 }

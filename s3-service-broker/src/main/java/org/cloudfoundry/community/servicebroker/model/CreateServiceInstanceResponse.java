@@ -17,19 +17,19 @@ import org.cloudfoundry.community.servicebroker.catalog.ServiceInstance;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateServiceInstanceResponse {
 
-	private ServiceInstance instance;
+ private ServiceInstance instance;
 
-	public CreateServiceInstanceResponse() {
-	}
+ public CreateServiceInstanceResponse() {
+ }
 
-	public CreateServiceInstanceResponse(ServiceInstance instance) {
-		this.instance = instance;
-	}
+ public CreateServiceInstanceResponse(ServiceInstance instance) {
+  this.instance = instance;
+ }
 
-	@JsonSerialize
-	@JsonProperty("dashboard_url")
-	public String getDashboardUrl() {
-		return instance.getDashboardUrl();
-	}
+ @JsonSerialize
+ @JsonProperty("dashboard_url")
+ public String getDashboardUrl() {
+  return instance.getDashboardUrl();
+ }
 
 }

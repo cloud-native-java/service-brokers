@@ -18,30 +18,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class BrokerApiVersionInterceptorIntegrationTest {
 
-	MockMvc mockMvc;
+ MockMvc mockMvc;
 
-	@InjectMocks
-	CatalogController controller;
+ @InjectMocks
+ CatalogController controller;
 
-	@Mock
-	CatalogService catalogService;
+ @Mock
+ CatalogService catalogService;
 
-	@Before
-	public void setup() {
-		MockitoAnnotations.initMocks(this);
+ @Before
+ public void setup() {
+  MockitoAnnotations.initMocks(this);
 
-		this.mockMvc = MockMvcBuilders
-				.standaloneSetup(controller)
-				.addInterceptors(
-						new BrokerApiVersionInterceptor(new BrokerApiVersion("header", "version")))
-				.setMessageConverters(new MappingJackson2HttpMessageConverter()).build();
-	}
+  this.mockMvc = MockMvcBuilders
+    .standaloneSetup(controller)
+    .addInterceptors(
+      new BrokerApiVersionInterceptor(new BrokerApiVersion("header", "version")))
+    .setMessageConverters(new MappingJackson2HttpMessageConverter()).build();
+ }
 
-	@Test
-	public void correctHeaderSent() throws Exception {
-		this.mockMvc.perform(
-				get(CatalogController.BASE_PATH).header("header", "version").accept(
-						MediaType.APPLICATION_JSON)).andExpect(status().isOk());
-	}
+ @Test
+ public void correctHeaderSent() throws Exception {
+  this.mockMvc.perform(
+    get(CatalogController.BASE_PATH).header("header", "version").accept(
+      MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+ }
 
 }

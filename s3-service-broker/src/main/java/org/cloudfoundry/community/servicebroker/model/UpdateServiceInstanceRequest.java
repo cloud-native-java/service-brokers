@@ -12,59 +12,59 @@ import java.util.Objects;
  */
 public class UpdateServiceInstanceRequest {
 
-	@JsonProperty("plan_id")
-	private String planId;
-	private Map<String, Object> parameters;
+ @JsonProperty("plan_id")
+ private String planId;
+ private Map<String, Object> parameters;
 
-	@JsonIgnore
-	private String serviceInstanceId;
+ @JsonIgnore
+ private String serviceInstanceId;
 
-	public UpdateServiceInstanceRequest() {
-	}
+ public UpdateServiceInstanceRequest() {
+ }
 
-	public UpdateServiceInstanceRequest(String planId) {
-		this.planId = planId;
-	}
+ public UpdateServiceInstanceRequest(String planId) {
+  this.planId = planId;
+ }
 
-	public UpdateServiceInstanceRequest(String planId, Map<String, Object> parameters) {
-		this(planId);
-		this.parameters = parameters;
-	}
+ public UpdateServiceInstanceRequest(String planId, Map<String, Object> parameters) {
+  this(planId);
+  this.parameters = parameters;
+ }
 
-	public String getPlanId() {
-		return planId;
-	}
+ public String getPlanId() {
+  return planId;
+ }
 
-	public String getServiceInstanceId() {
-		return serviceInstanceId;
-	}
+ public String getServiceInstanceId() {
+  return serviceInstanceId;
+ }
 
-	public Map<String, Object> getParameters() {
-		return parameters;
-	}
+ public Map<String, Object> getParameters() {
+  return parameters;
+ }
 
-	public void setParameters(Map<String, Object> parameters) {
-		this.parameters = parameters;
-	}
+ public void setParameters(Map<String, Object> parameters) {
+  this.parameters = parameters;
+ }
 
-	public UpdateServiceInstanceRequest withInstanceId(String serviceInstanceId) {
-		this.serviceInstanceId = serviceInstanceId;
-		return this;
-	}
+ public UpdateServiceInstanceRequest withInstanceId(String serviceInstanceId) {
+  this.serviceInstanceId = serviceInstanceId;
+  return this;
+ }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
-		UpdateServiceInstanceRequest that = (UpdateServiceInstanceRequest) o;
-		return Objects.equals(planId, that.planId)
-				&& Objects.equals(parameters, that.parameters);
-	}
+ @Override
+ public boolean equals(Object o) {
+  if (this == o)
+   return true;
+  if (o == null || getClass() != o.getClass())
+   return false;
+  UpdateServiceInstanceRequest that = (UpdateServiceInstanceRequest) o;
+  return Objects.equals(planId, that.planId)
+    && Objects.equals(parameters, that.parameters);
+ }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(planId, parameters);
-	}
+ @Override
+ public int hashCode() {
+  return Objects.hash(planId, parameters);
+ }
 }

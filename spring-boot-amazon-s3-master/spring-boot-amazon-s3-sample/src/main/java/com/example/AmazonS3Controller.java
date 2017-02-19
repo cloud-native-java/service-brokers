@@ -17,52 +17,52 @@ import java.util.stream.Collectors;
 @RequestMapping("/s3")
 public class AmazonS3Controller {
 
-	private AmazonS3Template amazonS3Template;
-	private String bucketName;
+ private AmazonS3Template amazonS3Template;
+ private String bucketName;
 
-	@Autowired
-	public AmazonS3Controller(AmazonS3Template amazonS3Template,
-			@Value("${amazon.s3.default-bucket}") String bucketName) {
-		this.amazonS3Template = amazonS3Template;
-		this.bucketName = bucketName;
-	}
+ @Autowired
+ public AmazonS3Controller(AmazonS3Template amazonS3Template,
+   @Value("${amazon.s3.default-bucket}") String bucketName) {
+  this.amazonS3Template = amazonS3Template;
+  this.bucketName = bucketName;
+ }
 
-	@RequestMapping(method = RequestMethod.GET, path = "/resources")
-	public List<Resource<S3ObjectSummary>> getBucketResources() {
+ @RequestMapping(method = RequestMethod.GET, path = "/resources")
+ public List<Resource<S3ObjectSummary>> getBucketResources() {
 
-		ObjectListing objectListing = amazonS3Template.getAmazonS3Client().listObjects(
-				new ListObjectsRequest().withBucketName(bucketName));
+  ObjectListing objectListing = amazonS3Template.getAmazonS3Client().listObjects(
+    new ListObjectsRequest().withBucketName(bucketName));
 
-		return objectListing
-				.getObjectSummaries()
-				.stream()
-				.map(
-						a -> new Resource<>(a, new Link(String.format(
-								"https://s3.amazonaws.com/%s/%s", a.getBucketName(), a.getKey()))
-								.withRel("url"))).collect(Collectors.toList());
-	}
+  return objectListing
+    .getObjectSummaries()
+    .stream()
+    .map(
+      a -> new Resource<>(a, new Link(String.format(
+        "https://s3.amazonaws.com/%s/%s", a.getBucketName(), a.getKey()))
+        .withRel("url"))).collect(Collectors.toList());
+ }
 
-	@RequestMapping(value = "/resources", method = RequestMethod.POST)
-	public @ResponseBody Object handleFileUpload(@RequestParam("name") String name,
-			@RequestParam("file") MultipartFile file) {
-		if (!file.isEmpty()) {
-			try {
-				ObjectMetadata objectMetadata = new ObjectMetadata();
-				objectMetadata.setContentType(file.getContentType());
+ @RequestMapping(value = "/resources", method = RequestMethod.POST)
+ public @ResponseBody Object handleFileUpload(@RequestParam("name") String name,
+   @RequestParam("file") MultipartFile file) {
+  if (!file.isEmpty()) {
+   try {
+    ObjectMetadata objectMetadata = new ObjectMetadata();
+    objectMetadata.setContentType(file.getContentType());
 
-				// Upload the file for public read
-				amazonS3Template.getAmazonS3Client().putObject(
-						new PutObjectRequest(bucketName, name, file.getInputStream(), objectMetadata)
-								.withCannedAcl(CannedAccessControlList.PublicRead));
+    // Upload the file for public read
+    amazonS3Template.getAmazonS3Client().putObject(
+      new PutObjectRequest(bucketName, name, file.getInputStream(), objectMetadata)
+        .withCannedAcl(CannedAccessControlList.PublicRead));
 
-				return new RedirectView("/");
-			}
-			catch (Exception e) {
-				return "You failed to upload " + name + " => " + e.getMessage();
-			}
-		}
-		else {
-			return "You failed to upload " + name + " because the file was empty.";
-		}
-	}
+    return new RedirectView("/");
+   }
+   catch (Exception e) {
+    return "You failed to upload " + name + " => " + e.getMessage();
+   }
+  }
+  else {
+   return "You failed to upload " + name + " because the file was empty.";
+  }
+ }
 }

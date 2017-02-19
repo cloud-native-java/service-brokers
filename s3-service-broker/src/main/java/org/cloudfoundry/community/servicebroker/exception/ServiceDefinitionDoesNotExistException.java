@@ -7,10 +7,10 @@ package org.cloudfoundry.community.servicebroker.exception;
  */
 public class ServiceDefinitionDoesNotExistException extends Exception {
 
-	private static final long serialVersionUID = -62090827040416788L;
+ private static final long serialVersionUID = -62090827040416788L;
 
-	public ServiceDefinitionDoesNotExistException(String serviceDefinitionId) {
-		super("ServiceDefinition does not exist: id = " + serviceDefinitionId);
-	}
+ public ServiceDefinitionDoesNotExistException(String serviceDefinitionId) {
+  super("ServiceDefinition does not exist: id = " + serviceDefinitionId);
+ }
 
 }

@@ -19,17 +19,17 @@ import org.springframework.context.annotation.Configuration;
 @AutoConfigureAfter({ WebMvcAutoConfiguration.class, ServiceDefinitionRepository.class })
 public class ServiceBrokerAutoConfiguration {
 
-	@Bean
-	@ConditionalOnMissingBean(BrokerApiVersion.class)
-	public BrokerApiVersion brokerApiVersion() {
-		return new BrokerApiVersion("2.9");
-	}
+ @Bean
+ @ConditionalOnMissingBean(BrokerApiVersion.class)
+ public BrokerApiVersion brokerApiVersion() {
+  return new BrokerApiVersion("2.9");
+ }
 
-	@Bean
-	@ConditionalOnMissingBean(CatalogService.class)
-	public CatalogService beanCatalogService(Catalog catalog,
-			ServiceDefinitionRepository serviceDefinitionRepository) {
-		return new BeanCatalogService(catalog, serviceDefinitionRepository);
-	}
+ @Bean
+ @ConditionalOnMissingBean(CatalogService.class)
+ public CatalogService beanCatalogService(Catalog catalog,
+   ServiceDefinitionRepository serviceDefinitionRepository) {
+  return new BeanCatalogService(catalog, serviceDefinitionRepository);
+ }
 
 }

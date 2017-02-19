@@ -9,32 +9,32 @@ import java.io.Serializable;
 @Entity
 public class DashboardClient implements Serializable {
 
-	@Id
-	private String id;
-	private String secret;
+ @Id
+ private String id;
+ private String secret;
 
-	@JsonProperty("redirect_uri")
-	private String redirectUri;
+ @JsonProperty("redirect_uri")
+ private String redirectUri;
 
-	public DashboardClient() {
-	}
+ public DashboardClient() {
+ }
 
-	public DashboardClient(String id, String secret, String redirectUri) {
-		this.id = id;
-		this.secret = secret;
-		this.redirectUri = redirectUri;
-	}
+ public DashboardClient(String id, String secret, String redirectUri) {
+  this.id = id;
+  this.secret = secret;
+  this.redirectUri = redirectUri;
+ }
 
-	public String getId() {
-		return id;
-	}
+ public String getId() {
+  return id;
+ }
 
-	public String getSecret() {
-		return secret;
-	}
+ public String getSecret() {
+  return secret;
+ }
 
-	public String getRedirectUri() {
-		return redirectUri;
-	}
+ public String getRedirectUri() {
+  return redirectUri;
+ }
 
 }

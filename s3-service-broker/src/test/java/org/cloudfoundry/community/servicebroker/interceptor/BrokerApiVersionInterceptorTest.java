@@ -17,72 +17,72 @@ import static org.mockito.Mockito.*;
 
 public class BrokerApiVersionInterceptorTest {
 
-	@Mock
-	private HttpServletRequest request;
+ @Mock
+ private HttpServletRequest request;
 
-	@Mock
-	private HttpServletResponse response;
+ @Mock
+ private HttpServletResponse response;
 
-	@Mock
-	private BrokerApiVersion brokerApiVersion;
+ @Mock
+ private BrokerApiVersion brokerApiVersion;
 
-	@Before
-	public void setup() {
-		MockitoAnnotations.initMocks(this);
-	}
+ @Before
+ public void setup() {
+  MockitoAnnotations.initMocks(this);
+ }
 
-	@Test
-	public void noBrokerApiVersionConfigured() throws IOException, ServletException,
-			ServiceBrokerApiVersionException {
-		BrokerApiVersionInterceptor interceptor = new BrokerApiVersionInterceptor(null);
-		assertTrue(interceptor.preHandle(request, response, null));
-	}
+ @Test
+ public void noBrokerApiVersionConfigured() throws IOException, ServletException,
+   ServiceBrokerApiVersionException {
+  BrokerApiVersionInterceptor interceptor = new BrokerApiVersionInterceptor(null);
+  assertTrue(interceptor.preHandle(request, response, null));
+ }
 
-	@Test
-	public void anyVersionAccepted() throws IOException, ServletException,
-			ServiceBrokerApiVersionException {
-		String header = "header";
-		String version = BrokerApiVersion.API_VERSION_ANY;
-		when(brokerApiVersion.getBrokerApiVersionHeader()).thenReturn(header);
-		when(brokerApiVersion.getApiVersion()).thenReturn(version);
-		when(request.getHeader(header)).thenReturn("version");
+ @Test
+ public void anyVersionAccepted() throws IOException, ServletException,
+   ServiceBrokerApiVersionException {
+  String header = "header";
+  String version = BrokerApiVersion.API_VERSION_ANY;
+  when(brokerApiVersion.getBrokerApiVersionHeader()).thenReturn(header);
+  when(brokerApiVersion.getApiVersion()).thenReturn(version);
+  when(request.getHeader(header)).thenReturn("version");
 
-		BrokerApiVersionInterceptor interceptor = new BrokerApiVersionInterceptor(
-				brokerApiVersion);
-		assertTrue(interceptor.preHandle(request, response, null));
-		verify(brokerApiVersion, atLeastOnce()).getApiVersion();
-	}
+  BrokerApiVersionInterceptor interceptor = new BrokerApiVersionInterceptor(
+    brokerApiVersion);
+  assertTrue(interceptor.preHandle(request, response, null));
+  verify(brokerApiVersion, atLeastOnce()).getApiVersion();
+ }
 
-	@Test
-	public void versionsMatch() throws IOException, ServletException,
-			ServiceBrokerApiVersionException {
-		String header = "header";
-		String version = "version";
-		when(brokerApiVersion.getBrokerApiVersionHeader()).thenReturn(header);
-		when(brokerApiVersion.getApiVersion()).thenReturn(version);
-		when(request.getHeader(header)).thenReturn(version);
+ @Test
+ public void versionsMatch() throws IOException, ServletException,
+   ServiceBrokerApiVersionException {
+  String header = "header";
+  String version = "version";
+  when(brokerApiVersion.getBrokerApiVersionHeader()).thenReturn(header);
+  when(brokerApiVersion.getApiVersion()).thenReturn(version);
+  when(request.getHeader(header)).thenReturn(version);
 
-		BrokerApiVersionInterceptor interceptor = new BrokerApiVersionInterceptor(
-				brokerApiVersion);
-		assertTrue(interceptor.preHandle(request, response, null));
-		verify(brokerApiVersion, atLeastOnce()).getApiVersion();
-	}
+  BrokerApiVersionInterceptor interceptor = new BrokerApiVersionInterceptor(
+    brokerApiVersion);
+  assertTrue(interceptor.preHandle(request, response, null));
+  verify(brokerApiVersion, atLeastOnce()).getApiVersion();
+ }
 
-	@Test(expected = ServiceBrokerApiVersionException.class)
-	public void versionMismatch() throws IOException, ServletException,
-			ServiceBrokerApiVersionException {
-		String header = "header";
-		String version = "version";
-		String notVersion = "not_version";
-		when(brokerApiVersion.getBrokerApiVersionHeader()).thenReturn(header);
-		when(brokerApiVersion.getApiVersion()).thenReturn(version);
-		when(request.getHeader(header)).thenReturn(notVersion);
+ @Test(expected = ServiceBrokerApiVersionException.class)
+ public void versionMismatch() throws IOException, ServletException,
+   ServiceBrokerApiVersionException {
+  String header = "header";
+  String version = "version";
+  String notVersion = "not_version";
+  when(brokerApiVersion.getBrokerApiVersionHeader()).thenReturn(header);
+  when(brokerApiVersion.getApiVersion()).thenReturn(version);
+  when(request.getHeader(header)).thenReturn(notVersion);
 
-		BrokerApiVersionInterceptor interceptor = new BrokerApiVersionInterceptor(
-				brokerApiVersion);
-		interceptor.preHandle(request, response, null);
-		verify(brokerApiVersion).getBrokerApiVersionHeader();
-		verify(brokerApiVersion).getApiVersion();
-	}
+  BrokerApiVersionInterceptor interceptor = new BrokerApiVersionInterceptor(
+    brokerApiVersion);
+  interceptor.preHandle(request, response, null);
+  verify(brokerApiVersion).getBrokerApiVersionHeader();
+  verify(brokerApiVersion).getApiVersion();
+ }
 
 }

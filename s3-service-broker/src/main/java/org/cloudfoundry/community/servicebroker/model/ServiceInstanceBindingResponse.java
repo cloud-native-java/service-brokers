@@ -15,23 +15,23 @@ import java.util.Map;
  */
 public class ServiceInstanceBindingResponse {
 
-	ServiceInstanceBinding binding;
+ ServiceInstanceBinding binding;
 
-	public ServiceInstanceBindingResponse() {
-	}
+ public ServiceInstanceBindingResponse() {
+ }
 
-	public ServiceInstanceBindingResponse(ServiceInstanceBinding binding) {
-		this.binding = binding;
-	}
+ public ServiceInstanceBindingResponse(ServiceInstanceBinding binding) {
+  this.binding = binding;
+ }
 
-	@JsonProperty("credentials")
-	public Map<String, String> getCredentials() {
-		return binding.getCredentials();
-	}
+ @JsonProperty("credentials")
+ public Map<String, String> getCredentials() {
+  return binding.getCredentials();
+ }
 
-	@JsonProperty("syslog_drain_url")
-	public String getSyslogDrainUrl() {
-		return binding.getSyslogDrainUrl();
-	}
+ @JsonProperty("syslog_drain_url")
+ public String getSyslogDrainUrl() {
+  return binding.getSyslogDrainUrl();
+ }
 
 }

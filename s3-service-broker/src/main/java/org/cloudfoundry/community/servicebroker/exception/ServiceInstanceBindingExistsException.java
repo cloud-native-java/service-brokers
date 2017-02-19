@@ -10,11 +10,11 @@ import org.cloudfoundry.community.servicebroker.catalog.ServiceInstanceBinding;
  */
 public class ServiceInstanceBindingExistsException extends Exception {
 
-	private static final long serialVersionUID = -914571358227517785L;
+ private static final long serialVersionUID = -914571358227517785L;
 
-	public ServiceInstanceBindingExistsException(ServiceInstanceBinding binding) {
-		super("ServiceInstanceBinding already exists: serviceInstanceBinding.id = "
-				+ binding.getId() + ", serviceInstance.id = " + binding.getServiceInstanceId());
-	}
+ public ServiceInstanceBindingExistsException(ServiceInstanceBinding binding) {
+  super("ServiceInstanceBinding already exists: serviceInstanceBinding.id = "
+    + binding.getId() + ", serviceInstance.id = " + binding.getServiceInstanceId());
+ }
 
 }

@@ -11,13 +11,13 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(AmazonProperties.class)
 public class S3AutoConfiguration {
 
-	@Autowired
-	private AmazonProperties amazonProperties;
+ @Autowired
+ private AmazonProperties amazonProperties;
 
-	@Bean
-	AmazonS3Template amazonS3Template() {
-		return new AmazonS3Template(amazonProperties.getS3().getDefaultBucket(),
-				amazonProperties.getAws().getAccessKeyId(), amazonProperties.getAws()
-						.getAccessKeySecret());
-	}
+ @Bean
+ AmazonS3Template amazonS3Template() {
+  return new AmazonS3Template(amazonProperties.getS3().getDefaultBucket(),
+    amazonProperties.getAws().getAccessKeyId(), amazonProperties.getAws()
+      .getAccessKeySecret());
+ }
 }

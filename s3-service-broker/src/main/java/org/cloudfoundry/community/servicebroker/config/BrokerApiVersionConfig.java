@@ -17,21 +17,21 @@ import java.util.List;
 @EnableWebMvc
 public class BrokerApiVersionConfig extends WebMvcConfigurerAdapter {
 
-	@Autowired
-	private BrokerApiVersion brokerApiVersion;
+ @Autowired
+ private BrokerApiVersion brokerApiVersion;
 
-	@Autowired
-	private ObjectMapper objectMapper;
+ @Autowired
+ private ObjectMapper objectMapper;
 
-	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(new BrokerApiVersionInterceptor(brokerApiVersion))
-				.addPathPatterns("/v2/**");
-	}
+ @Override
+ public void addInterceptors(InterceptorRegistry registry) {
+  registry.addInterceptor(new BrokerApiVersionInterceptor(brokerApiVersion))
+    .addPathPatterns("/v2/**");
+ }
 
-	@Override
-	public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-		converters.add(new MappingJackson2HttpMessageConverter(objectMapper));
-		super.configureMessageConverters(converters);
-	}
+ @Override
+ public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+  converters.add(new MappingJackson2HttpMessageConverter(objectMapper));
+  super.configureMessageConverters(converters);
+ }
 }

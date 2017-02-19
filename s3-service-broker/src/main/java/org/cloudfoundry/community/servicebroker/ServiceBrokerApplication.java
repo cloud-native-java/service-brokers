@@ -11,7 +11,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
  */
 @SpringBootApplication
 public class ServiceBrokerApplication {
-	public static void main(String[] args) {
-		new SpringApplicationBuilder(ServiceBrokerApplication.class).run(args);
-	}
+ public static void main(String[] args) {
+  new SpringApplicationBuilder(ServiceBrokerApplication.class).run(args);
+ }
 }
