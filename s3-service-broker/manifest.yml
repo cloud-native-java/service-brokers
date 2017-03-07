@@ -6,6 +6,6 @@ applications:
   memory: 1024M
   instances: 1
   timeout: 180
-  host: cnj-s3-broker-${random-word}
+  host: s3-broker
   services:
     - s3-broker-db
