@@ -1,11 +1,11 @@
 ---
 applications:
 - name: s3-sample-app
-  path: ./target/spring-boot-amazon-s3-sample.jar
+  path: ./target/s3-sample.jar
   buildpack: https://github.com/cloudfoundry/java-buildpack.git
-  memory: 600M
   instances: 1
   timeout: 180
+  memory: 1024M
   host: s3-sample-app
   services:
     - s3-service

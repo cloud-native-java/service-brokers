@@ -1,4 +1,10 @@
 spring.profiles.active: development
+spring:
+  http:
+    multipart:
+      file-size-threshold: 10MB
+      max-file-size: 10MB
+      max-request-size: 10MB
 ---
 spring:
   profiles: cloud
@@ -10,8 +16,6 @@ amazon:
     access-key-secret: ${vcap.services.s3-service.credentials.secretAccessKey:access-key-secret}
   s3:
     default-bucket: ${vcap.services.s3-service.credentials.userName:default-bucket}
-multipart.maxFileSize: 5MB
-multipart.maxRequestSize: 5MB
 ---
 spring:
   profiles: development
@@ -23,5 +27,3 @@ amazon:
     access-key-secret: replace
   s3:
     default-bucket: replace
-multipart.maxFileSize: 5MB
-multipart.maxRequestSize: 5MB

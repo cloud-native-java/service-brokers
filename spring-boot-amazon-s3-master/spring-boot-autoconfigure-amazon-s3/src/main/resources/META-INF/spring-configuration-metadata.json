@@ -1,9 +1,0 @@
-{
-  "groups": [
-    {
-      "name": "amazon",
-      "type": "amazon.s3.AmazonProperties",
-      "sourceType": "amazon.s3.AmazonProperties"
-    }
-  ]
-}

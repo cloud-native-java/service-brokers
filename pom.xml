@@ -15,22 +15,36 @@
         <relativePath/>
     </parent>
     <properties>
-        <aws-java-sdk.version>1.10.39</aws-java-sdk.version>
+        <aws-java-sdk.version>1.11.18</aws-java-sdk.version>
     </properties>
     <modules>
         <module>s3-service-broker</module>
-        <module>spring-boot-amazon-s3-master</module>
+        <module>s3-autoconfiguration</module>
+        <module>s3-sample</module>
+        <module>s3-starter</module>
     </modules>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-sts</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk</artifactId>
-            <version>${aws-java-sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-sts</artifactId>
-            <version>${aws-java-sdk.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -48,7 +62,8 @@
                         </goals>
                         <configuration>
                             <deployProperties>
-                                <build.vcsRevision>{{TRAVIS_COMMIT}}</build.vcsRevision>
+                                <build.vcsRevision>{{TRAVIS_COMMIT}}
+                                </build.vcsRevision>
                             </deployProperties>
                             <publisher>
                                 <contextUrl>
@@ -57,11 +72,13 @@
                                 <username>${env.ARTIFACTORY_USERNAME}</username>
                                 <password>${env.ARTIFACTORY_PASSWORD}</password>
                                 <repoKey>libs-release-local</repoKey>
-                                <snapshotRepoKey>libs-snapshot-local</snapshotRepoKey>
+                                <snapshotRepoKey>libs-snapshot-local
+                                </snapshotRepoKey>
                             </publisher>
                             <buildInfo>
                                 <agentName>Travis CI</agentName>
-                                <buildNumber>{{TRAVIS_BUILD_NUMBER}}</buildNumber>
+                                <buildNumber>{{TRAVIS_BUILD_NUMBER}}
+                                </buildNumber>
                                 <buildUrl>
                                     http://travis-ci.org/{{TRAVIS_REPO_SLUG}}/builds/{{TRAVIS_BUILD_ID}}
                                 </buildUrl>
@@ -82,13 +99,17 @@
             </snapshots>
             <id>central</id>
             <name>libs-release</name>
-            <url>https://cloudnativejava.artifactoryonline.com/cloudnativejava/libs-release</url>
+            <url>
+                https://cloudnativejava.artifactoryonline.com/cloudnativejava/libs-release
+            </url>
         </repository>
         <repository>
             <snapshots/>
             <id>snapshots</id>
             <name>libs-snapshot</name>
-            <url>https://cloudnativejava.artifactoryonline.com/cloudnativejava/libs-snapshot</url>
+            <url>
+                https://cloudnativejava.artifactoryonline.com/cloudnativejava/libs-snapshot
+            </url>
         </repository>
     </repositories>
     <pluginRepositories>
@@ -98,13 +119,16 @@
             </snapshots>
             <id>central</id>
             <name>plugins-release</name>
-            <url>https://cloudnativejava.artifactoryonline.com/cloudnativejava/plugins-release</url>
+            <url>
+                https://cloudnativejava.artifactoryonline.com/cloudnativejava/plugins-release
+            </url>
         </pluginRepository>
         <pluginRepository>
             <snapshots/>
             <id>snapshots</id>
             <name>plugins-snapshot</name>
-            <url>https://cloudnativejava.artifactoryonline.com/cloudnativejava/plugins-snapshot
+            <url>
+                https://cloudnativejava.artifactoryonline.com/cloudnativejava/plugins-snapshot
             </url>
         </pluginRepository>
     </pluginRepositories>

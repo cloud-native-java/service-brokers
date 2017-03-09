@@ -3,11 +3,12 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>spring-boot-amazon-s3-sample</artifactId>
+    <artifactId>s3-sample</artifactId>
     <packaging>jar</packaging>
+    <name>service-brokers/s3-sample</name>
     <parent>
         <groupId>cnj</groupId>
-        <artifactId>spring-boot-amazon-s3-master</artifactId>
+        <artifactId>service-brokers</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <dependencies>
@@ -25,7 +26,7 @@
         </dependency>
         <dependency>
             <groupId>cnj</groupId>
-            <artifactId>spring-boot-starter-amazon-s3</artifactId>
+            <artifactId>s3-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
