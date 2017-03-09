@@ -22,10 +22,11 @@ public class S3AutoConfigurationTest {
  @Test
  public void defaultAmazonS3Template() {
   load(EmptyConfiguration.class, "amazon.s3.default-bucket=test",
-    "amazon.aws.access-key-id=AJGLDLSXKDFLS",
-    "amazon.aws.access-key-secret=XSDFSDFLKKHASDFJALASDF");
+   "amazon.aws.access-key-id=AJGLDLSXKDFLS",
+   "amazon.aws.access-key-secret=XSDFSDFLKKHASDFJALASDF");
 
-  AmazonS3Template amazonS3Template = this.context.getBean(AmazonS3Template.class);
+  AmazonS3Template amazonS3Template = this.context
+   .getBean(AmazonS3Template.class);
   assertNotNull(amazonS3Template);
  }
 

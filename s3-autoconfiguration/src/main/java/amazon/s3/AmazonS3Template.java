@@ -14,68 +14,78 @@ import java.util.Date;
 
 public class AmazonS3Template {
 
-	private final String defaultBucket;
-	private final String accessKeyId;
-	private final String accessKeySecret;
+ private final String defaultBucket;
 
-	private final Object monitor = new Object();
+ private final String accessKeyId;
 
-	private volatile Credentials sessionCredentials;
+ private final String accessKeySecret;
 
-	public AmazonS3Template(String defaultBucket, String accessKeyId, String accessKeySecret) {
-		this.defaultBucket = defaultBucket;
-		this.accessKeyId = accessKeyId;
-		this.accessKeySecret = accessKeySecret;
-	}
+ private final Object monitor = new Object();
 
-	public PutObjectResult save(String key, File file) {
-		return getAmazonS3Client().putObject(new PutObjectRequest(defaultBucket, key, file));
-	}
+ private volatile Credentials sessionCredentials;
 
-	public S3Object get(String key) {
-		return getAmazonS3Client().getObject(defaultBucket, key);
-	}
+ public AmazonS3Template(String defaultBucket, String accessKeyId,
+  String accessKeySecret) {
+  this.defaultBucket = defaultBucket;
+  this.accessKeyId = accessKeyId;
+  this.accessKeySecret = accessKeySecret;
+ }
 
-	private AmazonS3 getAmazonS3Client() {
-		return new AmazonS3Client(getBasicSessionCredentials());
-	}
+ public PutObjectResult save(String key, File file) {
+  return getAmazonS3Client().putObject(
+   new PutObjectRequest(defaultBucket, key, file));
+ }
 
-	private BasicSessionCredentials getBasicSessionCredentials() {
-		synchronized (this.monitor) {
-			if (sessionCredentials == null || sessionCredentials.getExpiration().before(new Date())) {
-				sessionCredentials = getSessionCredentials();
-			}
-		}
+ public S3Object get(String key) {
+  return getAmazonS3Client().getObject(defaultBucket, key);
+ }
 
-		return new BasicSessionCredentials(sessionCredentials.getAccessKeyId(),
-				sessionCredentials.getSecretAccessKey(), sessionCredentials.getSessionToken());
-	}
+ private AmazonS3 getAmazonS3Client() {
+  return new AmazonS3Client(getBasicSessionCredentials());
+ }
 
-	/**
-	 * Creates a new session credential that is valid for 12 hours
-	 */
-	private Credentials getSessionCredentials() {
-		// Create a new session with the user credentials for the service instance
-		AWSSecurityTokenServiceClient stsClient = new AWSSecurityTokenServiceClient(
-				new BasicAWSCredentials(accessKeyId, accessKeySecret));
+ private BasicSessionCredentials getBasicSessionCredentials() {
+  synchronized (this.monitor) {
+   if (sessionCredentials == null
+    || sessionCredentials.getExpiration().before(new Date())) {
+    sessionCredentials = getSessionCredentials();
+   }
+  }
 
-		// Start a new session for managing a service instance's bucket
-		GetSessionTokenRequest getSessionTokenRequest = new GetSessionTokenRequest()
-				.withDurationSeconds(43200);
+  return new BasicSessionCredentials(sessionCredentials.getAccessKeyId(),
+   sessionCredentials.getSecretAccessKey(),
+   sessionCredentials.getSessionToken());
+ }
 
-		// Get the session token for the service instance's bucket
-		sessionCredentials = stsClient
-				.getSessionToken(getSessionTokenRequest)
-				.getCredentials();
+ /**
+  * Creates a new session credential
+  * that is valid for 12 hours
+  */
+ private Credentials getSessionCredentials() {
+  // Create a new session with the user
+  // credentials for the service
+  // instance
+  AWSSecurityTokenServiceClient stsClient = new AWSSecurityTokenServiceClient(
+   new BasicAWSCredentials(accessKeyId, accessKeySecret));
 
-		return sessionCredentials;
-	}
+  // Start a new session for managing a
+  // service instance's bucket
+  GetSessionTokenRequest getSessionTokenRequest = new GetSessionTokenRequest()
+   .withDurationSeconds(43200);
 
-	public ObjectListing listObjects(ListObjectsRequest listObjectsRequest) {
-		return getAmazonS3Client().listObjects(listObjectsRequest);
-	}
+  // Get the session token for the
+  // service instance's bucket
+  sessionCredentials = stsClient.getSessionToken(getSessionTokenRequest)
+   .getCredentials();
 
-	public void putObject(PutObjectRequest putObjectRequest) {
-		getAmazonS3Client().putObject(putObjectRequest);
-	}
+  return sessionCredentials;
+ }
+
+ public ObjectListing listObjects(ListObjectsRequest listObjectsRequest) {
+  return getAmazonS3Client().listObjects(listObjectsRequest);
+ }
+
+ public void putObject(PutObjectRequest putObjectRequest) {
+  getAmazonS3Client().putObject(putObjectRequest);
+ }
 }

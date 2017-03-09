@@ -13,7 +13,7 @@ public class S3AutoConfiguration {
  @Bean
  AmazonS3Template amazonS3Template(AmazonProperties amazonProperties) {
   return new AmazonS3Template(amazonProperties.getS3().getDefaultBucket(),
-    amazonProperties.getAws().getAccessKeyId(), amazonProperties.getAws()
-      .getAccessKeySecret());
+   amazonProperties.getAws().getAccessKeyId(), amazonProperties.getAws()
+    .getAccessKeySecret());
  }
 }

@@ -17,53 +17,49 @@ import java.util.stream.Collectors;
 @RequestMapping("/s3")
 class AmazonS3Controller {
 
-	private final AmazonS3Template amazonS3Template;
-	private final String bucketName;
+ private final AmazonS3Template amazonS3Template;
 
-	@Autowired
-	AmazonS3Controller(AmazonS3Template template, AmazonProperties properties) {
-		this.amazonS3Template = template;
-		this.bucketName = properties.getS3().getDefaultBucket();
-	}
+ private final String bucketName;
 
-	@ResponseBody
-	@GetMapping("/resources")
-	List<Resource<S3ObjectSummary>> list() {
+ @Autowired
+ AmazonS3Controller(AmazonS3Template template, AmazonProperties properties) {
+  this.amazonS3Template = template;
+  this.bucketName = properties.getS3().getDefaultBucket();
+ }
 
-		ListObjectsRequest request = new ListObjectsRequest()
-				.withBucketName(this.bucketName);
+ @ResponseBody
+ @GetMapping("/resources")
+ List<Resource<S3ObjectSummary>> list() {
 
-		ObjectListing listing = this.amazonS3Template.listObjects(request);
+  ListObjectsRequest request = new ListObjectsRequest()
+   .withBucketName(this.bucketName);
 
-		return
-				listing
-						.getObjectSummaries()
-						.stream()
-						.map(this::from)
-						.collect(Collectors.toList());
-	}
+  ObjectListing listing = this.amazonS3Template.listObjects(request);
 
-	@PostMapping("/resources")
-	String upload(@RequestParam String name, @RequestParam MultipartFile file)
-			throws Throwable {
+  return listing.getObjectSummaries().stream().map(this::from)
+   .collect(Collectors.toList());
+ }
 
-		if (!file.isEmpty()) {
-			ObjectMetadata objectMetadata = new ObjectMetadata();
-			objectMetadata.setContentType(file.getContentType());
+ @PostMapping("/resources")
+ String upload(@RequestParam String name, @RequestParam MultipartFile file)
+  throws Throwable {
 
-			PutObjectRequest request = new PutObjectRequest(
-					this.bucketName, name, file.getInputStream(), objectMetadata)
-					.withCannedAcl(CannedAccessControlList.PublicRead);
+  if (!file.isEmpty()) {
+   ObjectMetadata objectMetadata = new ObjectMetadata();
+   objectMetadata.setContentType(file.getContentType());
 
-			this.amazonS3Template.putObject(request);
-		}
-		return "/";
-	}
+   PutObjectRequest request = new PutObjectRequest(this.bucketName, name,
+    file.getInputStream(), objectMetadata)
+    .withCannedAcl(CannedAccessControlList.PublicRead);
 
-	private Resource<S3ObjectSummary> from(S3ObjectSummary a) {
-		Link link = new Link(String.format(
-				"https://s3.amazonaws.com/%s/%s", a.getBucketName(), a.getKey()))
-				.withRel("url");
-		return new Resource<>(a, link);
-	}
+   this.amazonS3Template.putObject(request);
+  }
+  return "/";
+ }
+
+ private Resource<S3ObjectSummary> from(S3ObjectSummary a) {
+  Link link = new Link(String.format("https://s3.amazonaws.com/%s/%s",
+   a.getBucketName(), a.getKey())).withRel("url");
+  return new Resource<>(a, link);
+ }
 }
