@@ -14,31 +14,37 @@ import javax.persistence.Id;
 @NoArgsConstructor
 class ServiceInstance {
 
-	@Id
-	private String id;
-	private String serviceDefinitionId;
-	private String planId;
-	private String organizationGuid;
-	private String spaceGuid;
-	private String dashboardUrl;
-	private String username, accessKeyId, secretAccessKey;
+ @Id
+ private String id;
 
-	public ServiceInstance(CreateServiceInstanceRequest request) {
-		this.serviceDefinitionId = request.getServiceDefinitionId();
-		this.planId = request.getPlanId();
-		this.organizationGuid = request.getOrganizationGuid();
-		this.spaceGuid = request.getSpaceGuid();
-		this.id = request.getServiceInstanceId();
-	}
+ private String serviceDefinitionId;
 
-	public ServiceInstance(DeleteServiceInstanceRequest request) {
-		this.id = request.getServiceInstanceId();
-		this.planId = request.getPlanId();
-		this.serviceDefinitionId = request.getServiceDefinitionId();
-	}
+ private String planId;
 
-	public ServiceInstance(UpdateServiceInstanceRequest request) {
-		this.id = request.getServiceInstanceId();
-		this.planId = request.getPlanId();
-	}
+ private String organizationGuid;
+
+ private String spaceGuid;
+
+ private String dashboardUrl;
+
+ private String username, accessKeyId, secretAccessKey;
+
+ public ServiceInstance(CreateServiceInstanceRequest request) {
+  this.serviceDefinitionId = request.getServiceDefinitionId();
+  this.planId = request.getPlanId();
+  this.organizationGuid = request.getOrganizationGuid();
+  this.spaceGuid = request.getSpaceGuid();
+  this.id = request.getServiceInstanceId();
+ }
+
+ public ServiceInstance(DeleteServiceInstanceRequest request) {
+  this.id = request.getServiceInstanceId();
+  this.planId = request.getPlanId();
+  this.serviceDefinitionId = request.getServiceDefinitionId();
+ }
+
+ public ServiceInstance(UpdateServiceInstanceRequest request) {
+  this.id = request.getServiceInstanceId();
+  this.planId = request.getPlanId();
+ }
 }

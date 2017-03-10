@@ -11,18 +11,16 @@ import javax.persistence.Id;
 @NoArgsConstructor
 public class ServiceInstanceBinding {
 
-	@Id
-	private String id;
+ @Id
+ private String id;
 
-	private String serviceInstanceId, syslogDrainUrl, appGuid;
+ private String serviceInstanceId, syslogDrainUrl, appGuid;
 
-	public ServiceInstanceBinding(String id,
-	                              String serviceInstanceId,
-	                              String syslogDrainUrl,
-	                              String appGuid) {
-		this.id = id;
-		this.serviceInstanceId = serviceInstanceId;
-		this.syslogDrainUrl = syslogDrainUrl;
-		this.appGuid = appGuid;
-	}
+ public ServiceInstanceBinding(String id, String serviceInstanceId,
+  String syslogDrainUrl, String appGuid) {
+  this.id = id;
+  this.serviceInstanceId = serviceInstanceId;
+  this.syslogDrainUrl = syslogDrainUrl;
+  this.appGuid = appGuid;
+ }
 }

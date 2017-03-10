@@ -15,85 +15,68 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Date;
+import java.lang.reflect.Method;
 
 @Configuration
 @EnableConfigurationProperties(AmazonProperties.class)
 public class S3AutoConfiguration {
 
-	@Bean
-	public AmazonProperties awsProperties() {
-		return new AmazonProperties();
-	}
+ @Bean
+ @ConditionalOnMissingBean(AmazonS3Client.class)
+ @ConditionalOnClass(AmazonS3Client.class)
+ public AmazonS3Client amazonS3Client(AmazonProperties aws) {
 
-	@Bean
-	@ConditionalOnMissingBean(AmazonS3Client.class)
-	@ConditionalOnClass(AmazonS3Client.class)
-	public AmazonS3Client amazonS3Client(AmazonProperties aws) {
+  RefreshableAmazonS3ClientMethodInterceptor interceptor = new RefreshableAmazonS3ClientMethodInterceptor(
+   aws.getAws().getAccessKeyId(), aws.getAws().getAccessKeySecret(), aws
+    .getS3().getSessionDuration());
 
-		RefreshingBasicSessionCredentialsMethodInterceptor interceptor =
-				new RefreshingBasicSessionCredentialsMethodInterceptor(aws.getAws().getAccessKeyId(),
-						aws.getAws().getAccessKeySecret(),
-						aws.getS3().getSessionDuration());
+  ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
+  proxyFactoryBean.setTargetClass(AmazonS3Client.class);
+  proxyFactoryBean.setProxyTargetClass(true);
+  proxyFactoryBean.addAdvice(interceptor);
 
-		ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
-		proxyFactoryBean.setTargetClass(AmazonS3Client.class);
-		proxyFactoryBean.setProxyTargetClass(true);
-		proxyFactoryBean.addAdvice(interceptor);
+  return AmazonS3Client.class.cast(proxyFactoryBean.getObject());
+ }
 
-		return AmazonS3Client.class.cast(proxyFactoryBean.getObject());
-	}
+ private static class RefreshableAmazonS3ClientMethodInterceptor implements
+  MethodInterceptor {
 
-	private static class RefreshingBasicSessionCredentialsMethodInterceptor
-			implements MethodInterceptor {
-		private final String accessKeyId, accessKeySecret;
+  private final String accessKeyId, accessKeySecret;
 
-		private final int duration;
-		private Credentials sessionCredentials;
+  private final int duration;
 
-		private AmazonS3Client amazonS3Client;
+  private Credentials sessionCredentials;
 
-		RefreshingBasicSessionCredentialsMethodInterceptor(String accessKeyId, String accessKeySecret, int d) {
-			this.accessKeyId = accessKeyId;
-			this.accessKeySecret = accessKeySecret;
-			this.duration = d;
-		}
+  RefreshableAmazonS3ClientMethodInterceptor(String accessKeyId,
+   String accessKeySecret, int duration) {
+   this.accessKeyId = accessKeyId;
+   this.accessKeySecret = accessKeySecret;
+   this.duration = duration;
+  }
 
-		private final Object monitor = new Object();
+  private AmazonS3Client refreshSessionCredentials(String accessKeyId,
+   String accessKeySecret) {
+   AWSSecurityTokenServiceClient client = new AWSSecurityTokenServiceClient(
+    new BasicAWSCredentials(accessKeyId, accessKeySecret));
+   GetSessionTokenRequest request = new GetSessionTokenRequest()
+    .withDurationSeconds(this.duration);
+   this.sessionCredentials = client.getSessionToken(request).getCredentials();
+   BasicSessionCredentials basicSessionCredentials = new BasicSessionCredentials(
+    sessionCredentials.getAccessKeyId(),
+    sessionCredentials.getSecretAccessKey(),
+    sessionCredentials.getSessionToken());
+   return new AmazonS3Client(basicSessionCredentials);
+  }
 
-		private AmazonS3Client refreshSessionCredentials(String accessKeyId, String accessKeySecret) {
+  @Override
+  public Object invoke(MethodInvocation methodInvocation) throws Throwable {
+   Method method = methodInvocation.getMethod();
+   return method.invoke(client(), methodInvocation.getArguments());
+  }
 
-			// synchronized because the three variables may be in inconsistent state.
-			// BUT: this will happen once every 15 minutes, in the worst case.
-
-			if (this.sessionCredentials == null || this.sessionCredentials.getExpiration().before(new Date())) {
-				synchronized (this.monitor) {
-					AWSSecurityTokenServiceClient stsClient = new AWSSecurityTokenServiceClient(
-							new BasicAWSCredentials(accessKeyId, accessKeySecret));
-					GetSessionTokenRequest getSessionTokenRequest = new GetSessionTokenRequest()
-							.withDurationSeconds(this.duration);
-					this.sessionCredentials = stsClient.getSessionToken(getSessionTokenRequest).getCredentials();
-					BasicSessionCredentials basicSessionCredentials = new BasicSessionCredentials(
-							sessionCredentials.getAccessKeyId(),
-							sessionCredentials.getSecretAccessKey(),
-							sessionCredentials.getSessionToken());
-					this.amazonS3Client = new AmazonS3Client(
-							basicSessionCredentials);
-				}
-			}
-			return this.amazonS3Client;
-		}
-
-		@Override
-		public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-
-			AmazonS3Client amazonS3Client = this.refreshSessionCredentials(
-					this.accessKeyId, this.accessKeySecret);
-
-			return methodInvocation.getMethod().invoke(amazonS3Client, methodInvocation.getArguments());
-		}
-
-	}
-
-
+  private AmazonS3Client client() {
+   return this
+    .refreshSessionCredentials(this.accessKeyId, this.accessKeySecret);
+  }
+ }
 }

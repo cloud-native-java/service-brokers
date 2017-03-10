@@ -6,8 +6,12 @@
 root=$(cd `dirname $0` && pwd);
 
 service_broker=s3-service-broker
-mvn -DskipTests=true -f s3-sample/pom.xml clean install
-mvn -DskipTests=true -f s3-service-broker/pom.xml clean install
+#mvn -DskipTests=true -f s3-sample/pom.xml clean install
+#mvn -DskipTests=true -f s3-service-broker/pom.xml clean install
+
+rm -rf ~/.m2/repository/cnj/service-brokers/
+
+mvn -DskipTests=true clean install
 
 function reset(){
     cf purge-service-instance -f s3-service
