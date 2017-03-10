@@ -3,30 +3,29 @@ package amazon.s3;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
-import org.springframework.context.annotation.Configuration;
 
 @Data
-@Configuration
 @ConfigurationProperties(prefix = "amazon")
 public class AmazonProperties {
 
- @NestedConfigurationProperty
- private Aws aws;
+	@NestedConfigurationProperty
+	private Aws aws;
 
- @NestedConfigurationProperty
- private S3 s3;
+	@NestedConfigurationProperty
+	private S3 s3;
 
- @Data
- public static class Aws {
+	@Data
+	public static class Aws {
 
-  private String accessKeyId;
+		private String accessKeyId;
 
-  private String accessKeySecret;
- }
+		private String accessKeySecret;
+	}
 
- @Data
- public static class S3 {
+	@Data
+	public static class S3 {
 
-  private String defaultBucket;
- }
+		private String defaultBucket;
+		private int sessionDuration = 900 ;// 900 is required min. 43200;
+	}
 }

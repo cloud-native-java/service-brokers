@@ -1,65 +1,80 @@
 package com.example;
 
 import amazon.s3.AmazonProperties;
-import amazon.s3.AmazonS3Template;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URI;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Controller
+@RestController
 @RequestMapping("/s3")
 class AmazonS3Controller {
 
- private final AmazonS3Template amazonS3Template;
+	private Log log = LogFactory.getLog(getClass());
 
- private final String bucketName;
+	private final AmazonS3Client amazonS3Client;
+	private final String defaultBucket;
 
- @Autowired
- AmazonS3Controller(AmazonS3Template template, AmazonProperties properties) {
-  this.amazonS3Template = template;
-  this.bucketName = properties.getS3().getDefaultBucket();
- }
+	@Autowired
+	public AmazonS3Controller(AmazonProperties amazonProperties, AmazonS3Client amazonS3Client) {
+		this.amazonS3Client = amazonS3Client;
+		this.defaultBucket = amazonProperties.getS3().getDefaultBucket();
+	}
 
- @ResponseBody
- @GetMapping("/resources")
- List<Resource<S3ObjectSummary>> list() {
+	@GetMapping("/resources")
+	List<Resource<S3ObjectSummary>> list() {
 
-  ListObjectsRequest request = new ListObjectsRequest()
-   .withBucketName(this.bucketName);
+		ListObjectsRequest request = new ListObjectsRequest()
+				.withBucketName(this.defaultBucket);
 
-  ObjectListing listing = this.amazonS3Template.listObjects(request);
+		ObjectListing listing = this.amazonS3Client.listObjects(request);
 
-  return listing.getObjectSummaries().stream().map(this::from)
-   .collect(Collectors.toList());
- }
+		return listing.getObjectSummaries().stream().map(this::from)
+				.collect(Collectors.toList());
+	}
 
- @PostMapping("/resources")
- String upload(@RequestParam String name, @RequestParam MultipartFile file)
-  throws Throwable {
+	@PostMapping("/resources")
+	ResponseEntity<?> upload(@RequestParam String name, @RequestParam MultipartFile file)
+			throws Throwable {
 
-  if (!file.isEmpty()) {
-   ObjectMetadata objectMetadata = new ObjectMetadata();
-   objectMetadata.setContentType(file.getContentType());
+		if (!file.isEmpty()) {
+			ObjectMetadata objectMetadata = new ObjectMetadata();
+			objectMetadata.setContentType(file.getContentType());
+			PutObjectRequest request = new PutObjectRequest(this.defaultBucket, name,
+					file.getInputStream(), objectMetadata)
+					.withCannedAcl(CannedAccessControlList.PublicRead);
+			PutObjectResult objectResult = this.amazonS3Client.putObject(request);
+			URI location = URI.create(urlFor(this.defaultBucket, name));
+			String str = String.format("uploaded %s at %s to %s",
+					objectResult.getContentMd5(),
+					Instant.now().toString(),
+					location.toString());
+			log.debug(str);
+			return ResponseEntity.created(location).build();
+		}
+		return ResponseEntity.badRequest().build();
+	}
 
-   PutObjectRequest request = new PutObjectRequest(this.bucketName, name,
-    file.getInputStream(), objectMetadata)
-    .withCannedAcl(CannedAccessControlList.PublicRead);
+	private String urlFor(String bucket, String file) {
+		return String.format("https://s3.amazonaws.com/%s/%s",
+				bucket, file);
+	}
 
-   this.amazonS3Template.putObject(request);
-  }
-  return "/";
- }
+	private Resource<S3ObjectSummary> from(S3ObjectSummary a) {
+		Link link = new Link(this.urlFor(a.getBucketName(), a.getKey()))
+				.withRel("url");
 
- private Resource<S3ObjectSummary> from(S3ObjectSummary a) {
-  Link link = new Link(String.format("https://s3.amazonaws.com/%s/%s",
-   a.getBucketName(), a.getKey())).withRel("url");
-  return new Resource<>(a, link);
- }
+		return new Resource<>(a, link);
+	}
 }

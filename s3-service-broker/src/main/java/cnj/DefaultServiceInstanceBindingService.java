@@ -39,9 +39,9 @@ public class DefaultServiceInstanceBindingService implements ServiceInstanceBind
 				accessKeyId = serviceInstance.getAccessKeyId();
 
 		Map<String, Object> credentials = new HashMap<>();
-		credentials.put("userName", username);
+		credentials.put("bucket", username);
 		credentials.put("accessKeyId", accessKeyId);
-		credentials.put("secretAccessKey", secretAccessKey);
+		credentials.put("accessKeySecret", secretAccessKey);
 
 		ServiceInstanceBinding binding = new ServiceInstanceBinding(
 				request.getBindingId(),
