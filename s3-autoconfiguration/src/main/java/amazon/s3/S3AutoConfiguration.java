@@ -24,11 +24,11 @@ public class S3AutoConfiguration {
  @Bean
  @ConditionalOnMissingBean(AmazonS3Client.class)
  @ConditionalOnClass(AmazonS3Client.class)
- public AmazonS3Client amazonS3Client(AmazonProperties aws) {
+ public AmazonS3Client amazonS3Client(AmazonProperties properties) {
 
   RefreshableAmazonS3ClientMethodInterceptor interceptor = new RefreshableAmazonS3ClientMethodInterceptor(
-   aws.getAws().getAccessKeyId(), aws.getAws().getAccessKeySecret(), aws
-    .getS3().getSessionDuration());
+   properties.getAws().getAccessKeyId(), properties.getAws()
+    .getAccessKeySecret(), properties.getS3().getSessionDuration());
 
   ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
   proxyFactoryBean.setTargetClass(AmazonS3Client.class);

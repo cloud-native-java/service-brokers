@@ -25,9 +25,18 @@ function reset(){
     cf purge-service-offering amazon-s3 -f
 }
 
+function app_domain(){
+    D=`cf apps | grep $1 | tr -s ' ' | cut -d' ' -f 6 | cut -d, -f1`
+    echo $D
+}
+
 function deploy_service_broker_app(){
+
     cd ${root}/s3-service-broker
-    cf create-service p-mysql 512mb ${service_broker}-db
+
+    cf marketplace | grep cleardb && cf create-service cleardb spark ${service_broker}-db
+    cf marketplace | grep p-mysql && cf create-service p-mysql 512mb ${service_broker}-db
+
     cf push --no-start
     cf set-env $service_broker AWS_ACCESS_KEY_ID ${AWS_ACCESS_KEY_ID}
     cf set-env $service_broker AWS_SECRET_ACCESS_KEY ${AWS_SECRET_ACCESS_KEY}
@@ -35,7 +44,9 @@ function deploy_service_broker_app(){
 }
 
 function configure_service_broker(){
-    cf create-service-broker amazon-s3 admin admin http://${service_broker}.local.pcfdev.io -v
+    uri=`app_domain ${service_broker}`
+    uri=http://${uri}
+    cf create-service-broker amazon-s3 admin admin $uri --space-scoped
     cf enable-service-access $service_broker -p basic
 }
 
@@ -51,7 +62,6 @@ function update_broker(){
 }
 
 reset
-deploy_service_broker_app
-configure_service_broker
-# update_broker
-deploy_sample_app
+# deploy_service_broker_app
+# configure_service_broker
+# deploy_sample_app

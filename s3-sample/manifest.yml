@@ -6,6 +6,6 @@ applications:
   instances: 1
   timeout: 180
   memory: 1024M
-  host: s3-sample-app
+  host: s3-sample-app-${random-word}
   services:
     - s3-service
