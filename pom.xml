@@ -22,6 +22,7 @@
         <module>s3-autoconfiguration</module>
         <module>s3-sample</module>
         <module>s3-starter</module>
+        <module>service-brokers-it</module>
     </modules>
     <dependencyManagement>
         <dependencies>

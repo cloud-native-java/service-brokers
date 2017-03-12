@@ -7,8 +7,7 @@
     <artifactId>s3-service-broker</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>s3-service-broker</name>
-    <description>Demo project for Spring Boot</description>
+    <name>service-brokers/s3-service-broker</name>
     <parent>
         <groupId>cnj</groupId>
         <artifactId>service-brokers</artifactId>
@@ -22,14 +21,6 @@
         <aws-java-sdk.version>1.11.18</aws-java-sdk.version>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-sts</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>

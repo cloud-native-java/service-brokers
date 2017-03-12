@@ -9,7 +9,7 @@ service_broker=s3-service-broker
 
 rm -rf ~/.m2/repository/cnj/service-brokers/
 
-mvn -DskipTests=true clean install
+# mvn -DskipTests=true clean install
 
 function reset(){
     cf purge-service-instance -f s3-service
