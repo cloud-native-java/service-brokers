@@ -17,8 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
@@ -55,8 +54,12 @@ public class ServiceBrokerIT {
 	@Autowired
 	private CloudFoundryService cf;
 
+	private ClassPathResource jpgResource;
+
 	@Before
 	public void setUp() throws Throwable {
+		this.jpgResource = new ClassPathResource("/cnj.jpg");
+		Assert.assertTrue("the image we will upload later should exist.",this.jpgResource.exists());
 		log.info("setUp");
 		File root = new File(".");
 		this.serviceBrokerApplicationDirectory = new File(root, "../s3-service-broker");
@@ -82,10 +85,9 @@ public class ServiceBrokerIT {
 		String urlForSampleApp = this.cf.urlForApplication("s3-sample-app");
 		String fileName = UUID.randomUUID().toString();
 		String s3RootUrl = urlForSampleApp + "/s3/resources";
-		Resource resource = new FileSystemResource("/Users/jlong/Desktop/img.png");
 		MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
 		parts.put(HttpHeaders.CONTENT_TYPE, Collections.singletonList("image/jpeg"));
-		parts.put("file", Collections.singletonList(resource));
+		parts.put("file", Collections.singletonList(this.jpgResource));
 		RequestEntity<MultiValueMap<String, Object>> requestEntity =
 				RequestEntity
 						.post(URI.create(s3RootUrl))
