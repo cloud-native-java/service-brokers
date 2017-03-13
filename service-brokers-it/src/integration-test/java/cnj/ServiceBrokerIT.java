@@ -1,23 +1,37 @@
 package cnj;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudfoundry.operations.CloudFoundryOperations;
 import org.cloudfoundry.operations.applications.ApplicationManifest;
+import org.cloudfoundry.operations.serviceadmin.DeleteServiceBrokerRequest;
+import org.cloudfoundry.operations.serviceadmin.ServiceBroker;
+import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import sun.plugin.dom.exception.InvalidStateException;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.net.URI;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = ServiceBrokerIT.Config.class)
@@ -30,70 +44,151 @@ public class ServiceBrokerIT {
 	private final Log log = LogFactory.getLog(getClass());
 	private final String serviceBrokerRootName = "s3-service-broker";
 	private final String serviceBrokerName = "amazon-s3";
-	private File serviceBrokerApplicationDirectory;
+	private final RestTemplate restTemplate = new RestTemplateBuilder().build();
 
-	@Autowired
-	private CloudFoundryService cloudFoundryService;
+	private File sampleApplicationDirectory, serviceBrokerApplicationDirectory,
+			serviceBrokerApplicationManifest, sampleApplicationManifest;
 
 	@Autowired
 	private CloudFoundryOperations cloudFoundryOperations;
 
+	@Autowired
+	private CloudFoundryService cf;
+
 	@Before
-	public void before() throws Throwable {
+	public void setUp() throws Throwable {
+		log.info("setUp");
 		File root = new File(".");
 		this.serviceBrokerApplicationDirectory = new File(root, "../s3-service-broker");
+		this.sampleApplicationDirectory = new File(root, "../s3-sample");
+		this.serviceBrokerApplicationManifest = new File(this.serviceBrokerApplicationDirectory, "manifest.yml");
+		this.sampleApplicationManifest = new File(this.sampleApplicationDirectory, "manifest.yml");
+		this.reset();
 	}
 
-	private String deployServiceBrokerApplication() {
-		String serviceBrokerAppDbName = this.serviceBrokerRootName + "-db";
-		this.cloudFoundryService.createServiceIfMissing("cleardb", "spark", serviceBrokerAppDbName);
-		File manifest = new File(this.serviceBrokerApplicationDirectory, "manifest.yml");
-		Map<File, ApplicationManifest> manifestMap = this.cloudFoundryService.applicationManifestFrom(manifest);
-		Optional<String> optional = manifestMap.values().stream().findFirst().map(ApplicationManifest::getName);
-		Map<String, String> env = new HashMap<>();
-		Arrays.asList("AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY".split(",")).forEach(x -> env.put(x, System.getenv(x)));
-		manifestMap.forEach((f, am) -> this.cloudFoundryService.pushApplicationUsingManifest(f, am, env, true));
-		return optional.orElseThrow(() -> new InvalidStateException("the application must have a name!"));
-	}
-
-	private void configureServiceBrokerForApplication(String appName) {
-		log.info("configuring service broker for the application " + appName);
-		String urlForApplication = this.cloudFoundryService.urlForApplication(appName);
-		cloudFoundryService.createServiceBroker(this.serviceBrokerName,
-				urlForApplication, "admin", "admin", true);
+	@After
+	public void tearDown() throws Throwable {
+		log.info("tearDown");
+		this.reset();
 	}
 
 	@Test
 	public void testDeployingServiceBroker() throws Throwable {
 		String serviceBrokerApplicationName = this.deployServiceBrokerApplication();
+		this.log.info("the service broker's name is " + serviceBrokerApplicationName);
 		this.configureServiceBrokerForApplication(serviceBrokerApplicationName);
+		String sampleApplicationName = this.deploySampleApp();
+		this.log.info("deployed the sample application, " + sampleApplicationName);
+		String urlForSampleApp = this.cf.urlForApplication("s3-sample-app");
+		String fileName = UUID.randomUUID().toString();
+		String s3RootUrl = urlForSampleApp + "/s3/resources";
+		Resource resource = new FileSystemResource("/Users/jlong/Desktop/img.png");
+		MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+		parts.put(HttpHeaders.CONTENT_TYPE, Collections.singletonList("image/jpeg"));
+		parts.put("file", Collections.singletonList(resource));
+		RequestEntity<MultiValueMap<String, Object>> requestEntity =
+				RequestEntity
+						.post(URI.create(s3RootUrl))
+						.body(parts);
+		ResponseEntity<String> post =
+				this.restTemplate.exchange(s3RootUrl + "/" + fileName, HttpMethod.POST, requestEntity, String.class);
+		Assert.assertEquals("the file " + fileName + " should have been uploaded", 201, post.getStatusCode().value());
+		ResponseEntity<JsonNode> responseEntity = this.restTemplate.exchange(
+				s3RootUrl, HttpMethod.GET, null, JsonNode.class);
+		Assert.assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
+		JsonNode body = responseEntity.getBody();
+		AtomicReference<String> uriAR = new AtomicReference<>();
+		ArrayNode.class.cast(body).forEach(n -> {
+			JsonNode jsonNode = n.get("links");
+			ArrayNode.class.cast(jsonNode).forEach(linkNode -> {
+				String href = linkNode.get("href").asText();
+				if (href.contains(fileName)) {
+					uriAR.set(href);
+					log.info("the file we uploaded (" + fileName +
+							") has been confirmed discovered in the service using the service broker.");
+				}
+			});
+		});
+		Assert.assertNotNull("we should be able to find a matching URI in the responses for file " + fileName + "!", uriAR.get());
 	}
 
-	/*
+	private void reset() throws Throwable {
+		// delete the sample app
+		String sampleAppName = this.applicationNameFromManifest(
+				this.cf.applicationManifestFrom(this.sampleApplicationManifest));
 
- @Before
- public void before() throws Throwable {
+		this.cf.destroyApplicationIfExists(sampleAppName);
+		log.info("deleted " + sampleAppName);
 
-  File root = new File(".");
-  File configClientManifest = new File(root, "../configuration-client/manifest.yml");
-  File configServiceManifest = new File(root, "../configuration-service/manifest.yml");
+		// delete the sample apps backing service S3
+		String s3Service = "s3-service";
+		this.cf.destroyServiceIfExists(s3Service);
+		log.info("deleted " + s3Service);
 
-  String rmqService = "rabbitmq-bus";
-  this.service.createServiceIfMissing("cloudamqp", "lemur", rmqService);
-  this.service.pushApplicationAndCreateUserDefinedServiceUsingManifest(configServiceManifest);
-  this.service.pushApplicationUsingManifest(configClientManifest);
- }
+		// delete the service broker app
+		log.info("attempting to delete " + this.serviceBrokerRootName);
+		this.cf.destroyApplicationIfExists(this.serviceBrokerRootName);
+		log.info("deleted application " + this.serviceBrokerRootName);
 
- @Test
- public void clientIsConnectedToService() throws Exception {
+		// delete the service broker if it exists
+		ServiceBroker broker = this.cloudFoundryOperations
+				.serviceAdmin()
+				.list()
+				.filter(sb -> sb.getName().equals(this.serviceBrokerName))
+				.blockFirst();
 
-  String configClientUrl = this.service.urlForApplication("configuration-client");
-  log.info("the application is running at " + configClientUrl);
-  String url = configClientUrl + "/project-name";
-  log.info("url: " + url);
-  ResponseEntity<String> entity = this.restTemplate.getForEntity(url,
-    String.class);
-  assertEquals(entity.getStatusCode(), HttpStatus.OK);
-  assertTrue(entity.getBody().contains("Spring Cloud"));
- }*/
+		if (null != broker) {
+			log.info("attempting to delete service broker " + this.serviceBrokerName);
+			this.cloudFoundryOperations
+					.serviceAdmin()
+					.delete(
+							DeleteServiceBrokerRequest
+									.builder()
+									.name(broker.getName())
+									.build())
+					.block();
+			log.info("deleted service broker " + this.serviceBrokerName + " if it exists.");
+		}
+
+
+		// delete the service broker backing service DB
+		this.cf.destroyServiceIfExists(this.serviceBrokerRootName + "-db");
+		log.info("deleted the service broker backing service " +
+				this.serviceBrokerRootName + "-db");
+
+		// clearing routes
+		this.cf.destroyOrphanedRoutes();
+		log.info("deleted orphaned routes");
+	}
+
+	private String deployServiceBrokerApplication() {
+		String serviceBrokerAppDbName = this.serviceBrokerRootName + "-db";
+		this.cf.createServiceIfMissing("cleardb", "spark", serviceBrokerAppDbName);
+
+		Map<File, ApplicationManifest> manifestMap = this.cf.applicationManifestFrom(
+				this.serviceBrokerApplicationManifest);
+
+		Map<String, String> env = new HashMap<>();
+		Arrays.asList("AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY".split(",")).forEach(x -> env.put(x, System.getenv(x)));
+		manifestMap.forEach((f, am) -> this.cf.pushApplicationUsingManifest(f, am, env, true));
+		return this.applicationNameFromManifest(manifestMap);
+	}
+
+	private void configureServiceBrokerForApplication(String appName) {
+		log.info("configuring service broker for the application " + appName);
+		String urlForApplication = this.cf.urlForApplication(appName);
+		this.cf.createServiceBroker(this.serviceBrokerName, urlForApplication, "admin", "admin", true);
+	}
+
+	private String applicationNameFromManifest(Map<File, ApplicationManifest> manifestMap) {
+		Optional<String> optional = manifestMap.values().stream().findFirst().map(ApplicationManifest::getName);
+		return optional.orElseThrow(() -> new RuntimeException("the sample application must have a name!"));
+	}
+
+	private String deploySampleApp() {
+		this.cf.createServiceIfMissing(this.serviceBrokerRootName, "basic", "s3-service");
+		Map<File, ApplicationManifest> manifestMap = this.cf.applicationManifestFrom(sampleApplicationManifest);
+		manifestMap.forEach((f, am) -> this.cf.pushApplicationUsingManifest(f, am, true));
+		return this.applicationNameFromManifest(manifestMap);
+	}
 }
