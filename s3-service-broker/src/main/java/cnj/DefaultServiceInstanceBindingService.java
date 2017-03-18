@@ -1,7 +1,5 @@
 package cnj;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.servicebroker.exception.ServiceInstanceBindingDoesNotExistException;
 import org.springframework.cloud.servicebroker.exception.ServiceInstanceBindingExistsException;
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse;
@@ -18,16 +16,13 @@ import java.util.Map;
 public class DefaultServiceInstanceBindingService implements
  ServiceInstanceBindingService {
 
- private final ServiceInstanceBindingRepository serviceInstanceBindingRepository;
-
- private final ServiceInstanceRepository serviceInstanceRepository;
-
- private final Log log = LogFactory.getLog(getClass());
+ private final ServiceInstanceBindingRepository bindingRepository;
+ private final ServiceInstanceRepository instanceRepository;
 
  public DefaultServiceInstanceBindingService(
   ServiceInstanceBindingRepository sibr, ServiceInstanceRepository sir) {
-  this.serviceInstanceBindingRepository = sibr;
-  this.serviceInstanceRepository = sir;
+  this.bindingRepository = sibr;
+  this.instanceRepository = sir;
  }
 
  @Override
@@ -36,7 +31,7 @@ public class DefaultServiceInstanceBindingService implements
 
   this.assertBindingDoesNotExist(request);
 
-  ServiceInstance serviceInstance = this.serviceInstanceRepository
+  ServiceInstance serviceInstance = this.instanceRepository
    .findOne(request.getServiceInstanceId());
 
   String username = serviceInstance.getUsername(), secretAccessKey = serviceInstance
@@ -52,7 +47,7 @@ public class DefaultServiceInstanceBindingService implements
    String.class.cast(request.getBindResource().getOrDefault("app_guid",
     request.getAppGuid())));
 
-  this.serviceInstanceBindingRepository.save(binding);
+  this.bindingRepository.save(binding);
 
   return new CreateServiceInstanceAppBindingResponse()
    .withCredentials(credentials);
@@ -61,7 +56,7 @@ public class DefaultServiceInstanceBindingService implements
  private void assertBindingDoesNotExist(
   CreateServiceInstanceBindingRequest request) {
   ServiceInstanceBinding binding;
-  if ((binding = this.serviceInstanceBindingRepository.findOne(request
+  if ((binding = this.bindingRepository.findOne(request
    .getBindingId())) != null) {
    throw new ServiceInstanceBindingExistsException(
     binding.getServiceInstanceId(), binding.getId());
@@ -72,16 +67,12 @@ public class DefaultServiceInstanceBindingService implements
  public void deleteServiceInstanceBinding(
   DeleteServiceInstanceBindingRequest request) {
   String bindingId = request.getBindingId();
-  ServiceInstanceBinding binding = this.serviceInstanceBindingRepository
+  ServiceInstanceBinding binding = this.bindingRepository
    .findOne(bindingId);
-  assertServiceInstanceDoesExist(bindingId, binding);
-  this.serviceInstanceBindingRepository.delete(bindingId);
- }
-
- private void assertServiceInstanceDoesExist(String bindingId,
-  ServiceInstanceBinding binding) {
   if (binding == null) {
    throw new ServiceInstanceBindingDoesNotExistException(bindingId);
   }
+  this.bindingRepository.delete(bindingId);
  }
+
 }

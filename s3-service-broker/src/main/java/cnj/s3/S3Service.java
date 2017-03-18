@@ -39,7 +39,7 @@ public class S3Service {
 
  private final AmazonIdentityManagement identityManagement;
 
- private final AmazonS3 amazonS3;
+ private final AmazonS3 s3;
 
  @Autowired
  public S3Service(@Value("${aws.access-key-id}") String awsAccessKeyId,
@@ -49,7 +49,7 @@ public class S3Service {
    new BasicAWSCredentials(awsAccessKeyId, awsSecretAccessKey));
 
   /* Create S3 client */
-  this.amazonS3 = new AmazonS3Client(new BasicAWSCredentials(awsAccessKeyId,
+  this.s3 = new AmazonS3Client(new BasicAWSCredentials(awsAccessKeyId,
    awsSecretAccessKey));
  }
 
@@ -70,17 +70,17 @@ public class S3Service {
 
   try {
    /* Get all keys for objects in the service instance's bucket */
-   List<String> objectKeys = amazonS3.listObjects(serviceInstanceId)
+   List<String> objectKeys = s3.listObjects(serviceInstanceId)
     .getObjectSummaries().stream().map(S3ObjectSummary::getKey)
     .collect(Collectors.toList());
 
    if (objectKeys.size() > 0)
     /* Clear the contents of the service instance's bucket */
-    amazonS3.deleteObjects(new DeleteObjectsRequest(serviceInstanceId)
+    s3.deleteObjects(new DeleteObjectsRequest(serviceInstanceId)
      .withKeys(objectKeys.toArray(new String[objectKeys.size()])));
 
    /* Delete the empty bucket for the service instance */
-   amazonS3.deleteBucket(serviceInstanceId);
+   s3.deleteBucket(serviceInstanceId);
 
    /* Detach the manage bucket user policy before deleting the user */
    identityManagement.detachUserPolicy(new DetachUserPolicyRequest()
@@ -147,24 +147,25 @@ public class S3Service {
    serviceInstanceId)));
 
   /* Create access key for new user */
+  User createdUser = user.getCreateUserResult().getUser();
   CreateAccessKeyResult createAccessKeyResult = identityManagement
    .createAccessKey(new CreateAccessKeyRequest(serviceInstanceId)
-    .withUserName(user.getCreateUserResult().getUser().getUserName()));
+    .withUserName(createdUser.getUserName()));
 
   /* Get access key and secret for new user */
-  user.setAccessKeyId(createAccessKeyResult.getAccessKey().getAccessKeyId());
-  user.setAccessKeySecret(createAccessKeyResult.getAccessKey()
-   .getSecretAccessKey());
+  AccessKey accessKey = createAccessKeyResult.getAccessKey();
+  user.setAccessKeyId(accessKey.getAccessKeyId());
+  user.setAccessKeySecret(accessKey.getSecretAccessKey());
 
   /* Create the bucket for the service instance */
-  amazonS3.createBucket(new CreateBucketRequest(serviceInstanceId));
+  s3.createBucket(new CreateBucketRequest(serviceInstanceId));
 
   /* Get or create the manage bucket policy for the new user */
   String manageBucketArn = getOrCreateManageBucketPolicyArn();
 
   /* Attach the manage bucket policy to the new user */
   identityManagement.attachUserPolicy(new AttachUserPolicyRequest()
-   .withUserName(user.getCreateUserResult().getUser().getUserName())
+   .withUserName(createdUser.getUserName())
    .withPolicyArn(manageBucketArn));
 
   return user;
