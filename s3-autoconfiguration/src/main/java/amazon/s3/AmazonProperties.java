@@ -27,7 +27,6 @@ public class AmazonProperties {
 
   private String defaultBucket;
 
-  // required minimum: 900 seconds.
   private int sessionDuration = 900;
  }
 }
