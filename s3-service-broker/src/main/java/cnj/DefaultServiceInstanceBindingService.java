@@ -1,5 +1,6 @@
 package cnj;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.exception.ServiceInstanceBindingDoesNotExistException;
 import org.springframework.cloud.servicebroker.exception.ServiceInstanceBindingExistsException;
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse;
@@ -13,14 +14,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class DefaultServiceInstanceBindingService implements
+class DefaultServiceInstanceBindingService implements
  ServiceInstanceBindingService {
 
  private final ServiceInstanceBindingRepository bindingRepository;
+
  private final ServiceInstanceRepository instanceRepository;
 
- public DefaultServiceInstanceBindingService(
-  ServiceInstanceBindingRepository sibr, ServiceInstanceRepository sir) {
+ @Autowired
+ DefaultServiceInstanceBindingService(ServiceInstanceBindingRepository sibr,
+  ServiceInstanceRepository sir) {
   this.bindingRepository = sibr;
   this.instanceRepository = sir;
  }
@@ -28,51 +31,51 @@ public class DefaultServiceInstanceBindingService implements
  @Override
  public CreateServiceInstanceBindingResponse createServiceInstanceBinding(
   CreateServiceInstanceBindingRequest request) {
+  String bindingId = request.getBindingId();
+  {
+   ServiceInstanceBinding binding;
+   if ((binding = this.bindingRepository.findOne(bindingId)) != null) {
+    throw new ServiceInstanceBindingExistsException(
+     binding.getServiceInstanceId(), binding.getId());
+   }
+  }
 
-  this.assertBindingDoesNotExist(request);
+  // <1>
+  ServiceInstance serviceInstance = this.instanceRepository.findOne(request
+   .getServiceInstanceId());
 
-  ServiceInstance serviceInstance = this.instanceRepository
-   .findOne(request.getServiceInstanceId());
+  String username = serviceInstance.getUsername();
+  String secretAccessKey = serviceInstance.getSecretAccessKey();
+  String accessKeyId = serviceInstance.getAccessKeyId();
 
-  String username = serviceInstance.getUsername(), secretAccessKey = serviceInstance
-   .getSecretAccessKey(), accessKeyId = serviceInstance.getAccessKeyId();
-
+  // <2>
   Map<String, Object> credentials = new HashMap<>();
   credentials.put("bucket", username);
   credentials.put("accessKeyId", accessKeyId);
   credentials.put("accessKeySecret", secretAccessKey);
 
-  ServiceInstanceBinding binding = new ServiceInstanceBinding(
-   request.getBindingId(), request.getServiceInstanceId(), null,
-   String.class.cast(request.getBindResource().getOrDefault("app_guid",
-    request.getAppGuid())));
+  Map<String, Object> resource = request.getBindResource();
+  String appGuid = String.class.cast(resource.getOrDefault("app_guid",
+   request.getAppGuid()));
+
+  // <3>
+  ServiceInstanceBinding binding = new ServiceInstanceBinding(bindingId,
+   request.getServiceInstanceId(), null, appGuid);
 
   this.bindingRepository.save(binding);
 
+  // <4>
   return new CreateServiceInstanceAppBindingResponse()
    .withCredentials(credentials);
- }
-
- private void assertBindingDoesNotExist(
-  CreateServiceInstanceBindingRequest request) {
-  ServiceInstanceBinding binding;
-  if ((binding = this.bindingRepository.findOne(request
-   .getBindingId())) != null) {
-   throw new ServiceInstanceBindingExistsException(
-    binding.getServiceInstanceId(), binding.getId());
-  }
  }
 
  @Override
  public void deleteServiceInstanceBinding(
   DeleteServiceInstanceBindingRequest request) {
   String bindingId = request.getBindingId();
-  ServiceInstanceBinding binding = this.bindingRepository
-   .findOne(bindingId);
-  if (binding == null) {
+  if (this.bindingRepository.findOne(bindingId) == null) {
    throw new ServiceInstanceBindingDoesNotExistException(bindingId);
   }
   this.bindingRepository.delete(bindingId);
  }
-
 }

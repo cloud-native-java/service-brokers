@@ -1,6 +1,5 @@
 package cnj.s3;
 
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.amazonaws.services.identitymanagement.model.*;
@@ -9,10 +8,8 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CreateBucketRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
@@ -26,31 +23,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/**
- * A service component for managing the
- * lifecycle of AWS S3 credential
- * bindings for service instances in
- * this service broker's catalog
- */
 @Service
 public class S3Service {
 
- private final Logger log = LoggerFactory.getLogger(S3Service.class);
+ private final Log log = LogFactory.getLog(getClass());
 
- private final AmazonIdentityManagement identityManagement;
+ private final AmazonIdentityManagement id;
 
  private final AmazonS3 s3;
 
- @Autowired
- public S3Service(@Value("${aws.access-key-id}") String awsAccessKeyId,
-  @Value("${aws.secret-access-key}") String awsSecretAccessKey) {
-  /* Create identity management client */
-  this.identityManagement = new AmazonIdentityManagementClient(
-   new BasicAWSCredentials(awsAccessKeyId, awsSecretAccessKey));
-
-  /* Create S3 client */
-  this.s3 = new AmazonS3Client(new BasicAWSCredentials(awsAccessKeyId,
-   awsSecretAccessKey));
+ public S3Service(AmazonIdentityManagementClient id, AmazonS3Client s3Client) {
+  this.id = id;
+  this.s3 = s3Client;
  }
 
  private String getManageBucketPolicyDocument() throws IOException {
@@ -61,67 +45,57 @@ public class S3Service {
   }
  }
 
- public S3User createBucket(String applicationId) {
-  return createUserResult(applicationId);
+ public S3User createS3UserForBucket(String bucketName) {
+  S3User user = new S3User(bucketName);
+  user.setCreateUserResult(id.createUser(new CreateUserRequest(bucketName)));
+  User createdUser = user.getCreateUserResult().getUser();
+  CreateAccessKeyResult createAccessKeyResult = id
+   .createAccessKey(new CreateAccessKeyRequest(bucketName)
+    .withUserName(createdUser.getUserName()));
+  AccessKey accessKey = createAccessKeyResult.getAccessKey();
+  user.setAccessKeyId(accessKey.getAccessKeyId());
+  user.setAccessKeySecret(accessKey.getSecretAccessKey());
+  s3.createBucket(new CreateBucketRequest(bucketName));
+  String manageBucketArn = getOrCreateManageBucketPolicyArn();
+  id.attachUserPolicy(new AttachUserPolicyRequest().withUserName(
+   createdUser.getUserName()).withPolicyArn(manageBucketArn));
+  return user;
  }
 
- public boolean deleteServiceInstanceBucket(String serviceInstanceId,
-  String accessKeyId, String userName) {
-
+ public boolean deleteBucket(String bucketName, String accessKeyId,
+  String userName) {
   try {
-   /* Get all keys for objects in the service instance's bucket */
-   List<String> objectKeys = s3.listObjects(serviceInstanceId)
-    .getObjectSummaries().stream().map(S3ObjectSummary::getKey)
-    .collect(Collectors.toList());
-
+   List<String> objectKeys = s3.listObjects(bucketName).getObjectSummaries()
+    .stream().map(S3ObjectSummary::getKey).collect(Collectors.toList());
    if (objectKeys.size() > 0)
-    /* Clear the contents of the service instance's bucket */
-    s3.deleteObjects(new DeleteObjectsRequest(serviceInstanceId)
-     .withKeys(objectKeys.toArray(new String[objectKeys.size()])));
-
-   /* Delete the empty bucket for the service instance */
-   s3.deleteBucket(serviceInstanceId);
-
-   /* Detach the manage bucket user policy before deleting the user */
-   identityManagement.detachUserPolicy(new DetachUserPolicyRequest()
-    .withPolicyArn(getOrCreateManageBucketPolicyArn()).withUserName(userName));
-
-   /* Delete the access key for the service instance before deleting the user */
-   identityManagement.deleteAccessKey(new DeleteAccessKeyRequest(userName,
-    accessKeyId));
-
-   /* Finally, delete the user for the service instance that has been deleted by the service broker */
-   identityManagement.deleteUser(new DeleteUserRequest(userName));
-
+    s3.deleteObjects(new DeleteObjectsRequest(bucketName).withKeys(objectKeys
+     .toArray(new String[objectKeys.size()])));
+   s3.deleteBucket(bucketName);
+   id.detachUserPolicy(new DetachUserPolicyRequest().withPolicyArn(
+    getOrCreateManageBucketPolicyArn()).withUserName(userName));
+   id.deleteAccessKey(new DeleteAccessKeyRequest(userName, accessKeyId));
+   id.deleteUser(new DeleteUserRequest(userName));
   }
   catch (Exception ex) {
    log.error("Could not delete instance bucket {}", ex);
    return false;
   }
-
   return true;
  }
 
  private String getOrCreateManageBucketPolicyArn() {
-
   String manageBucketArn;
-
   try {
-   /* Get the IAM account identifier from the user's resource name */
    Pattern p = Pattern.compile("(?<=::)([\\d]*)(?=:)");
-   Matcher m = p.matcher(identityManagement.getUser().getUser().getArn());
-
-   GetPolicyResult policyResult = identityManagement
-    .getPolicy(new GetPolicyRequest().withPolicyArn(String.format(
-     "arn:aws:iam::%s:policy/manage-bucket", m.find() ? m.group(1) : ":")));
-
-   /* Retrieve the manage bucket policy's ARN */
+   Matcher m = p.matcher(id.getUser().getUser().getArn());
+   GetPolicyResult policyResult = id.getPolicy(new GetPolicyRequest()
+    .withPolicyArn(String.format("arn:aws:iam::%s:policy/manage-bucket",
+     m.find() ? m.group(1) : ":")));
    manageBucketArn = policyResult.getPolicy().getArn();
   }
   catch (NoSuchEntityException ex) {
    try {
-    /* If the manage bucket policy does not exist, create one */
-    CreatePolicyResult createPolicyResult = identityManagement
+    CreatePolicyResult createPolicyResult = id
      .createPolicy(new CreatePolicyRequest()
       .withPolicyDocument(getManageBucketPolicyDocument())
       .withPolicyName("manage-bucket")
@@ -130,45 +104,12 @@ public class S3Service {
     manageBucketArn = createPolicyResult.getPolicy().getArn();
    }
    catch (Exception exr) {
-    String msg = String.format("arn:aws:iam::%s:policy/manage-bucket",
-     identityManagement.getUser().getUser().getUserId());
+    String msg = String.format("arn:aws:iam::%s:policy/manage-bucket", id
+     .getUser().getUser().getUserId());
     throw new RuntimeException(msg, exr);
    }
   }
   return manageBucketArn;
- }
-
- public S3User createUserResult(String serviceInstanceId) {
-
-  S3User user = new S3User(serviceInstanceId);
-
-  /* Create a new user for the service instance */
-  user.setCreateUserResult(identityManagement.createUser(new CreateUserRequest(
-   serviceInstanceId)));
-
-  /* Create access key for new user */
-  User createdUser = user.getCreateUserResult().getUser();
-  CreateAccessKeyResult createAccessKeyResult = identityManagement
-   .createAccessKey(new CreateAccessKeyRequest(serviceInstanceId)
-    .withUserName(createdUser.getUserName()));
-
-  /* Get access key and secret for new user */
-  AccessKey accessKey = createAccessKeyResult.getAccessKey();
-  user.setAccessKeyId(accessKey.getAccessKeyId());
-  user.setAccessKeySecret(accessKey.getSecretAccessKey());
-
-  /* Create the bucket for the service instance */
-  s3.createBucket(new CreateBucketRequest(serviceInstanceId));
-
-  /* Get or create the manage bucket policy for the new user */
-  String manageBucketArn = getOrCreateManageBucketPolicyArn();
-
-  /* Attach the manage bucket policy to the new user */
-  identityManagement.attachUserPolicy(new AttachUserPolicyRequest()
-   .withUserName(createdUser.getUserName())
-   .withPolicyArn(manageBucketArn));
-
-  return user;
  }
 
 }
