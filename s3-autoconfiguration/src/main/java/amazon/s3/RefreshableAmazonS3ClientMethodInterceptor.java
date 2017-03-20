@@ -2,6 +2,7 @@ package amazon.s3;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.BasicSessionCredentials;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient;
 import com.amazonaws.services.securitytoken.model.Credentials;
@@ -17,6 +18,7 @@ import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
 
+@Deprecated
 class RefreshableAmazonS3ClientMethodInterceptor implements MethodInterceptor {
 
  private final AtomicReference<S3ClientReference> clientReference = new AtomicReference<>();
@@ -33,14 +35,14 @@ class RefreshableAmazonS3ClientMethodInterceptor implements MethodInterceptor {
 
   private final Credentials credentials;
 
-  private final AmazonS3Client client;
+  private final AmazonS3 client;
 
  }
 
  @Override
  public Object invoke(MethodInvocation methodInvocation) throws Throwable {
   Method method = methodInvocation.getMethod();
-  AmazonS3Client s3Client = this
+  AmazonS3 s3Client = this
    .refresh(this.accessKeyId, this.accessKeySecret);
   return method.invoke(s3Client, methodInvocation.getArguments());
  }
@@ -52,7 +54,7 @@ class RefreshableAmazonS3ClientMethodInterceptor implements MethodInterceptor {
   this.duration = duration;
  }
 
- private AmazonS3Client refresh(String accessKeyId, String accessKeySecret) {
+ private AmazonS3 refresh(String accessKeyId, String accessKeySecret) {
   S3ClientReference reference = this.clientReference
    .updateAndGet(s3c -> {
     log.info("s3c == null ? " + (s3c == null));

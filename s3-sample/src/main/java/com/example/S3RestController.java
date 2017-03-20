@@ -1,7 +1,7 @@
 package com.example;
 
 import amazon.s3.AmazonProperties;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,13 +23,13 @@ class S3RestController {
 
  private Log log = LogFactory.getLog(getClass());
 
- private final AmazonS3Client amazonS3Client;
+ private final AmazonS3 amazonS3Client;
 
  private final String defaultBucket;
 
  @Autowired
  public S3RestController(AmazonProperties amazonProperties,
-  AmazonS3Client amazonS3Client) {
+  AmazonS3 amazonS3Client) {
   this.amazonS3Client = amazonS3Client;
   this.defaultBucket = amazonProperties.getS3().getDefaultBucket();
   log.debug("defaultBucket = " + this.defaultBucket);
