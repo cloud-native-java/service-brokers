@@ -20,7 +20,7 @@ management:
 
 ---
 spring:
-  profiles: development,default
+  profiles: development
   datasource:
     url: jdbc:mysql://localhost:3306/s3_service_broker
     username: s3_service_broker
