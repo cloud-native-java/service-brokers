@@ -1,0 +1,27 @@
+security:
+  user:
+    name: admin
+    password: admin
+  basic:
+    enabled: true
+spring:
+  application:
+    name: s3-service-broker
+  jpa:
+    database: mysql
+    hibernate:
+      ddl-auto: update
+    generate-ddl: true
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+management:
+  security:
+    enabled: false
+
+---
+spring:
+  profiles: development,default
+  datasource:
+    url: jdbc:mysql://localhost:3306/s3_service_broker
+    username: s3_service_broker
+    password: s3_service_broker
