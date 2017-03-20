@@ -1,15 +1,14 @@
 package cnj.s3;
 
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
-import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.amazonaws.services.identitymanagement.model.*;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CreateBucketRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
@@ -28,38 +27,14 @@ public class S3Service {
 
  private final Log log = LogFactory.getLog(getClass());
 
- private final AmazonIdentityManagement id;
+ private final AmazonIdentityManagement identityManagement;
 
  private final AmazonS3 s3;
 
- public S3Service(AmazonIdentityManagementClient id, AmazonS3Client s3Client) {
-  this.id = id;
-  this.s3 = s3Client;
- }
-
- private String getManageBucketPolicyDocument() throws IOException {
-  URL policyDocumentUrl = new ClassPathResource("manage-bucket-policy.json")
-   .getURL();
-  try (InputStream inputStream = policyDocumentUrl.openStream()) {
-   return StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
-  }
- }
-
- public S3User createS3UserForBucket(String bucketName) {
-  S3User user = new S3User(bucketName);
-  user.setCreateUserResult(id.createUser(new CreateUserRequest(bucketName)));
-  User createdUser = user.getCreateUserResult().getUser();
-  CreateAccessKeyResult createAccessKeyResult = id
-   .createAccessKey(new CreateAccessKeyRequest(bucketName)
-    .withUserName(createdUser.getUserName()));
-  AccessKey accessKey = createAccessKeyResult.getAccessKey();
-  user.setAccessKeyId(accessKey.getAccessKeyId());
-  user.setAccessKeySecret(accessKey.getSecretAccessKey());
-  s3.createBucket(new CreateBucketRequest(bucketName));
-  String manageBucketArn = getOrCreateManageBucketPolicyArn();
-  id.attachUserPolicy(new AttachUserPolicyRequest().withUserName(
-   createdUser.getUserName()).withPolicyArn(manageBucketArn));
-  return user;
+ @Autowired
+ public S3Service(AmazonIdentityManagement identityManagement, AmazonS3 s3) {
+  this.identityManagement = identityManagement;
+  this.s3 = s3;
  }
 
  public boolean deleteBucket(String bucketName, String accessKeyId,
@@ -71,10 +46,11 @@ public class S3Service {
     s3.deleteObjects(new DeleteObjectsRequest(bucketName).withKeys(objectKeys
      .toArray(new String[objectKeys.size()])));
    s3.deleteBucket(bucketName);
-   id.detachUserPolicy(new DetachUserPolicyRequest().withPolicyArn(
-    getOrCreateManageBucketPolicyArn()).withUserName(userName));
-   id.deleteAccessKey(new DeleteAccessKeyRequest(userName, accessKeyId));
-   id.deleteUser(new DeleteUserRequest(userName));
+   identityManagement.detachUserPolicy(new DetachUserPolicyRequest()
+    .withPolicyArn(getOrCreateManageBucketPolicyArn()).withUserName(userName));
+   identityManagement.deleteAccessKey(new DeleteAccessKeyRequest(userName,
+    accessKeyId));
+   identityManagement.deleteUser(new DeleteUserRequest(userName));
   }
   catch (Exception ex) {
    log.error("Could not delete instance bucket {}", ex);
@@ -83,8 +59,42 @@ public class S3Service {
   return true;
  }
 
+ public S3User createS3UserAndBucket(String username) {
+  S3User s3User = new S3User(username);
+  CreateUserResult createUserResult = this.identityManagement
+   .createUser(new CreateUserRequest(username));
+  User createdUser = createUserResult.getUser();
+  CreateAccessKeyResult createAccessKeyResult = this.identityManagement
+   .createAccessKey(new CreateAccessKeyRequest(username)
+    .withUserName(createdUser.getUserName()));
+  AccessKey accessKey = createAccessKeyResult.getAccessKey();
+
+  this.createBucket(username, createUserResult.getUser().getUserName());
+
+  s3User.setAccessKeyId(accessKey.getAccessKeyId());
+  s3User.setAccessKeySecret(accessKey.getSecretAccessKey());
+  s3User.setUsername(createUserResult.getUser().getUserName());
+  return s3User;
+ }
+
+ private void createBucket(String bucket, String stsCreateUserResultUsername) {
+  this.s3.createBucket(new CreateBucketRequest(bucket));
+  String manageBucketArn = getOrCreateManageBucketPolicyArn();
+  this.identityManagement.attachUserPolicy(new AttachUserPolicyRequest()
+   .withUserName(stsCreateUserResultUsername).withPolicyArn(manageBucketArn));
+ }
+
+ private String getManageBucketPolicyDocument() throws IOException {
+  URL policyDocumentUrl = new ClassPathResource("manage-bucket-policy.json")
+   .getURL();
+  try (InputStream inputStream = policyDocumentUrl.openStream()) {
+   return StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+  }
+ }
+
  private String getOrCreateManageBucketPolicyArn() {
   String manageBucketArn;
+  AmazonIdentityManagement id = this.identityManagement;
   try {
    Pattern p = Pattern.compile("(?<=::)([\\d]*)(?=:)");
    Matcher m = p.matcher(id.getUser().getUser().getArn());

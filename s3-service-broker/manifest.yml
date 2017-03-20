@@ -8,6 +8,7 @@ applications:
   timeout: 180
   host: s3-service-broker-${random-word} # <1>
   env:
+    SPRING_PROFILES_ACTIVE: cloud
     AWS_ACCESS_KEY_ID: replace
     AWS_SECRET_ACCESS_KEY: replace
   services:

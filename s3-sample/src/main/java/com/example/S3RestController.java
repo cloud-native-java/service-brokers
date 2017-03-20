@@ -62,12 +62,12 @@ class S3RestController {
  List<Resource<S3ObjectSummary>> list() {
 
   ListObjectsRequest request = new ListObjectsRequest()
-      .withBucketName(this.defaultBucket);
+   .withBucketName(this.defaultBucket);
 
   ObjectListing listing = this.amazonS3Client.listObjects(request);
 
   return listing.getObjectSummaries().stream().map(this::from)
-      .collect(Collectors.toList());
+   .collect(Collectors.toList());
  }
 
  private String urlFor(String bucket, String file) {

@@ -19,66 +19,68 @@ import java.util.concurrent.atomic.AtomicReference;
 
 class RefreshableAmazonS3ClientMethodInterceptor implements MethodInterceptor {
 
-	private final AtomicReference<S3ClientReference> clientReference = new AtomicReference<>();
+ private final AtomicReference<S3ClientReference> clientReference = new AtomicReference<>();
 
-	private final String accessKeyId, accessKeySecret;
+ private final String accessKeyId, accessKeySecret;
 
-	private final Log log = LogFactory.getLog(getClass());
+ private final Log log = LogFactory.getLog(getClass());
 
-	private final int duration;
+ private final int duration;
 
-	@AllArgsConstructor
-	@Data
-	private static class S3ClientReference {
+ @AllArgsConstructor
+ @Data
+ private static class S3ClientReference {
 
-		private final Credentials credentials;
-		private final AmazonS3Client client;
+  private final Credentials credentials;
 
-	}
+  private final AmazonS3Client client;
 
-	@Override
-	public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-		Method method = methodInvocation.getMethod();
-		AmazonS3Client s3Client = this
-				.refresh(this.accessKeyId, this.accessKeySecret);
-		return method.invoke(s3Client, methodInvocation.getArguments());
-	}
+ }
 
-	RefreshableAmazonS3ClientMethodInterceptor(String accessKeyId,
-	                                           String accessKeySecret, int duration) {
-		this.accessKeyId = accessKeyId;
-		this.accessKeySecret = accessKeySecret;
-		this.duration = duration;
-	}
+ @Override
+ public Object invoke(MethodInvocation methodInvocation) throws Throwable {
+  Method method = methodInvocation.getMethod();
+  AmazonS3Client s3Client = this
+   .refresh(this.accessKeyId, this.accessKeySecret);
+  return method.invoke(s3Client, methodInvocation.getArguments());
+ }
 
-	private AmazonS3Client refresh(String accessKeyId, String accessKeySecret) {
-		S3ClientReference reference = this.clientReference
-				.updateAndGet(s3c -> {
-					log.info("s3c == null ? " + (s3c == null));
+ RefreshableAmazonS3ClientMethodInterceptor(String accessKeyId,
+  String accessKeySecret, int duration) {
+  this.accessKeyId = accessKeyId;
+  this.accessKeySecret = accessKeySecret;
+  this.duration = duration;
+ }
 
-					if (null == s3c || s3c.getCredentials().getExpiration().before(new Date())) {
+ private AmazonS3Client refresh(String accessKeyId, String accessKeySecret) {
+  S3ClientReference reference = this.clientReference
+   .updateAndGet(s3c -> {
+    log.info("s3c == null ? " + (s3c == null));
 
-						if (null != s3c) {
-							log.info("expiration: " + s3c.getCredentials().getExpiration());
-						}
-						log.info("creating a new instance!");
+    if (null == s3c || s3c.getCredentials().getExpiration().before(new Date())) {
 
-						AWSSecurityTokenServiceClient client = new AWSSecurityTokenServiceClient(
-								new BasicAWSCredentials(accessKeyId, accessKeySecret));
-						GetSessionTokenRequest request = new GetSessionTokenRequest()
-								.withDurationSeconds(duration);
-						Credentials c = client.getSessionToken(request).getCredentials();
-						BasicSessionCredentials basicSessionCredentials = new BasicSessionCredentials(
-								c.getAccessKeyId(), c.getSecretAccessKey(), c.getSessionToken());
-						AmazonS3Client amazonS3Client = new AmazonS3Client(basicSessionCredentials);
-						return new S3ClientReference(c, amazonS3Client);
-					} else {
-						log.info("NOT creating a new instance!");
-					}
-					log.info("returning!");
-					return s3c;
-				});
-		this.log.info("s3 reference is " + reference);
-		return reference.getClient();
-	}
+     if (null != s3c) {
+      log.info("expiration: " + s3c.getCredentials().getExpiration());
+     }
+     log.info("creating a new instance!");
+
+     AWSSecurityTokenServiceClient client = new AWSSecurityTokenServiceClient(
+      new BasicAWSCredentials(accessKeyId, accessKeySecret));
+     GetSessionTokenRequest request = new GetSessionTokenRequest()
+      .withDurationSeconds(duration);
+     Credentials c = client.getSessionToken(request).getCredentials();
+     BasicSessionCredentials basicSessionCredentials = new BasicSessionCredentials(
+      c.getAccessKeyId(), c.getSecretAccessKey(), c.getSessionToken());
+     AmazonS3Client amazonS3Client = new AmazonS3Client(basicSessionCredentials);
+     return new S3ClientReference(c, amazonS3Client);
+    }
+    else {
+     log.info("NOT creating a new instance!");
+    }
+    log.info("returning!");
+    return s3c;
+   });
+  this.log.info("s3 reference is " + reference);
+  return reference.getClient();
+ }
 }

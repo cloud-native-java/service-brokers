@@ -15,6 +15,9 @@
         <relativePath/>
     </parent>
     <properties>
+<!--
+        <aws-java-sdk.version>1.11.105</aws-java-sdk.version>
+-->
         <aws-java-sdk.version>1.11.18</aws-java-sdk.version>
     </properties>
     <modules>

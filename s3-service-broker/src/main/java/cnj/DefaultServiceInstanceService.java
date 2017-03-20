@@ -31,9 +31,9 @@ class DefaultServiceInstanceService implements ServiceInstanceService {
   CreateServiceInstanceRequest request) {
   if (!this.exists(request.getServiceInstanceId())) {
    ServiceInstance si = new ServiceInstance(request);
-   S3User user = s3Service.createS3UserForBucket(si.getId()); // <1>
+   S3User user = s3Service.createS3UserAndBucket(si.getId()); // <1>
    si.setSecretAccessKey(user.getAccessKeySecret());
-   si.setUsername(user.getCreateUserResult().getUser().getUserName());
+   si.setUsername(user.getUsername());
    si.setAccessKeyId(user.getAccessKeyId());
    this.instanceRepository.save(si);
   }

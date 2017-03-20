@@ -5,6 +5,8 @@ spring:
       file-size-threshold: 10MB
       max-file-size: 10MB
       max-request-size: 10MB
+server:
+  port: 8081
 ---
 spring:
   profiles: cloud
@@ -14,6 +16,8 @@ amazon:
   aws:
     access-key-id: ${vcap.services.s3-service.credentials.accessKeyId:access-key-id}
     access-key-secret: ${vcap.services.s3-service.credentials.accessKeySecret:access-key-secret}
+  s3:
+    default-bucket: ${vcap.services.s3-service.credentials.bucket:bucket}
 ---
 spring:
   profiles: development
