@@ -18,6 +18,16 @@ management:
   security:
     enabled: false
 
+
+
+---
+spring:
+  profiles: ci
+  datasource:
+    url: jdbc:mysql://localhost:3306/s3_service_broker
+    username: s3_service_broker
+    password: s3_service_broker
+
 ---
 spring:
   profiles: development
