@@ -14,6 +14,7 @@ spring:
     name: ${vcap.application.name:s3-sample}
 amazon:
   aws:
+    # <1>
     access-key-id: ${vcap.services.s3-service.credentials.accessKeyId:access-key-id}
     access-key-secret: ${vcap.services.s3-service.credentials.accessKeySecret:access-key-secret}
   s3:

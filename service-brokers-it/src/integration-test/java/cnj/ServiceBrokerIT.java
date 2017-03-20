@@ -102,7 +102,7 @@ public class ServiceBrokerIT {
   RequestEntity<MultiValueMap<String, Object>> requestEntity = RequestEntity
    .post(URI.create(s3RootUrl)).body(parts);
   ResponseEntity<String> post = this.restTemplate.exchange(s3RootUrl + "/"
-   + fileName, HttpMethod.POST, requestEntity, String.class);
+   + fileName, HttpMethod.PUT, requestEntity, String.class);
   Assert.assertEquals("the file " + fileName + " should have been uploaded",
    201, post.getStatusCode().value());
   ResponseEntity<JsonNode> responseEntity = this.restTemplate.exchange(

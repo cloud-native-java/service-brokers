@@ -36,7 +36,7 @@ class S3RestController {
  }
 
  // <1>
- @PostMapping("/resources/{name}")
+ @PutMapping("/resources/{name}")
  ResponseEntity<?> upload(@PathVariable String name,
   @RequestParam MultipartFile file) throws Throwable {
 
