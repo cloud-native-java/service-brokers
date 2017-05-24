@@ -23,7 +23,7 @@ public class S3AutoConfiguration {
  @Bean
  @ConditionalOnMissingBean(AmazonS3.class)
  @ConditionalOnClass(AmazonS3.class)
- public AmazonS3 amazonS3(AmazonProperties awsProps) {
+ public AmazonS3 amazonS3(AmazonProperties awsProps) { //<2>
 
   String rootAwsAccessKeyId = awsProps.getAws().getAccessKeyId();
   String rootAwsAccessKeySecret = awsProps.getAws().getAccessKeySecret();

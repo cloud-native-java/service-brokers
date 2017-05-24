@@ -15,8 +15,8 @@ spring:
 amazon:
   aws:
     # <1>
-    access-key-id: ${vcap.services.s3-service.credentials.accessKeyId:access-key-id}
-    access-key-secret: ${vcap.services.s3-service.credentials.accessKeySecret:access-key-secret}
+    access-key-id: ${vcap.services.s3-service.credentials.accessKeyId}
+    access-key-secret: ${vcap.services.s3-service.credentials.accessKeySecret}
   s3:
     default-bucket: ${vcap.services.s3-service.credentials.bucket:bucket}
 ---

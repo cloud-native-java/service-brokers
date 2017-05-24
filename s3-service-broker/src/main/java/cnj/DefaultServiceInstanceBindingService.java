@@ -1,13 +1,24 @@
 package cnj;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.servicebroker.exception.ServiceInstanceBindingDoesNotExistException;
-import org.springframework.cloud.servicebroker.exception.ServiceInstanceBindingExistsException;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingResponse;
-import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceBindingRequest;
-import org.springframework.cloud.servicebroker.service.ServiceInstanceBindingService;
+
+//@formatter:off
+import org.springframework.cloud.servicebroker.exception.
+        ServiceInstanceBindingDoesNotExistException;
+import org.springframework.cloud.servicebroker.exception.
+        ServiceInstanceBindingExistsException;
+import org.springframework.cloud.servicebroker.model
+        .CreateServiceInstanceAppBindingResponse;
+import org.springframework.cloud.servicebroker.model
+        .CreateServiceInstanceBindingRequest;
+import org.springframework.cloud.servicebroker.model
+        .CreateServiceInstanceBindingResponse;
+import org.springframework.cloud.servicebroker.model
+        .DeleteServiceInstanceBindingRequest;
+import org.springframework.cloud.servicebroker.service
+        .ServiceInstanceBindingService;
+//@formatter:on
+
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
